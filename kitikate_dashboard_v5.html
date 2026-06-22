@@ -280,7 +280,7 @@ async function fetchView(filter,group){
   var pageSize=1000;
   var offset=0;
   while(true){
-    var url=SUPA_URL+'/rest/v1/satis?select='+sel+'&'+filter+'&limit='+pageSize+'&offset='+offset;
+    var url=SUPA_URL+'/rest/v1/satis_ozet?select='+sel+'&'+filter+'&limit='+pageSize+'&offset='+offset;
     var r=await fetch(url,{headers:H});
     if(!r.ok) break;
     var data=await r.json();
@@ -303,7 +303,7 @@ async function loadFilters(){
   var data=[];
   var offset=0;
   while(true){
-    var r=await fetch(SUPA_URL+'/rest/v1/satis?select=magaza,marka,ana_grup,cinsiyet&yil=eq.2026&limit=1000&offset='+offset,{headers:H});
+    var r=await fetch(SUPA_URL+'/rest/v1/satis_ozet?select=magaza,marka,ana_grup,cinsiyet&yil=eq.2026&limit=1000&offset='+offset,{headers:H});
     var chunk=await r.json();
     if(!Array.isArray(chunk)||chunk.length===0) break;
     data=data.concat(chunk);
