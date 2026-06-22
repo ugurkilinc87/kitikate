@@ -275,28 +275,41 @@ function getFilters(dr,yil,bas,bit){
 }
 
 async function fetchView(filter,group){
-  var sel=group?group+',toplam_ciro,toplam_bk,toplam_miktar':'toplam_ciro,toplam_bk,toplam_miktar';
-  var url=SUPA_URL+'/rest/v1/v_magaza_ay?select='+sel+'&'+filter+'&limit=50000';
-  var r=await fetch(url,{headers:H});
-  var data=await r.json();
-  if(!Array.isArray(data)) return [];
-  // Aggregate in JS
+  var sel=group?group+',miktar,ciro,bk':'miktar,ciro,bk';
   var agg={};
-  data.forEach(function(row){
-    var k=group?row[group]:'__total__';
-    if(!k) k='(Belirtilmemiş)';
-    if(!agg[k]) agg[k]={ciro:0,bk:0,miktar:0};
-    agg[k].ciro+=parseFloat(row.toplam_ciro||0);
-    agg[k].bk+=parseFloat(row.toplam_bk||0);
-    agg[k].miktar+=parseFloat(row.toplam_miktar||0);
-  });
+  var pageSize=1000;
+  var offset=0;
+  while(true){
+    var url=SUPA_URL+'/rest/v1/v_ozet?select='+sel+'&'+filter+'&limit='+pageSize+'&offset='+offset;
+    var r=await fetch(url,{headers:H});
+    var data=await r.json();
+    if(!Array.isArray(data)||data.length===0) break;
+    data.forEach(function(row){
+      var k=group?row[group]:'__total__';
+      if(!k||k==='null'||k==='undefined') k='(Belirtilmemiş)';
+      if(!agg[k]) agg[k]={ciro:0,bk:0,miktar:0};
+      agg[k].ciro+=parseFloat(row.ciro||0);
+      agg[k].bk+=parseFloat(row.bk||0);
+      agg[k].miktar+=parseFloat(row.miktar||0);
+    });
+    if(data.length<pageSize) break;
+    offset+=pageSize;
+  }
   return agg;
 }
 
 async function loadFilters(){
-  var r=await fetch(SUPA_URL+'/rest/v1/v_magaza_ay?select=magaza,marka,ana_grup,cinsiyet&yil=eq.2026&limit=50000',{headers:H});
-  var data=await r.json();
-  if(!Array.isArray(data)) return;
+  var data=[];
+  var offset=0;
+  while(true){
+    var r=await fetch(SUPA_URL+'/rest/v1/v_ozet?select=magaza,marka,ana_grup,cinsiyet&yil=eq.2026&limit=1000&offset='+offset,{headers:H});
+    var chunk=await r.json();
+    if(!Array.isArray(chunk)||chunk.length===0) break;
+    data=data.concat(chunk);
+    if(chunk.length<1000) break;
+    offset+=1000;
+  }
+  if(!data.length) return;
   var sets={magaza:new Set(),marka:new Set(),ana_grup:new Set(),cinsiyet:new Set()};
   data.forEach(function(r){Object.keys(sets).forEach(function(k){if(r[k])sets[k].add(r[k]);});});
   var fill=function(id,key){
