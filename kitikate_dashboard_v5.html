@@ -78,7 +78,7 @@ tr:hover td{background:rgba(108,99,255,.06);}
 <body>
 <header>
   <div class="logo">
-    <div class="logo-icon">👶</div>
+    
     <div><div class="logo-text">KİTİKATE</div><div class="logo-sub">Operasyon Paneli</div></div>
   </div>
   <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
@@ -209,14 +209,7 @@ function pct(a,b){
   var p=(a-b)/b*100;
   return p>=0?'<span class="up">▲ %'+p.toFixed(1)+'</span>':'<span class="down">▼ %'+Math.abs(p).toFixed(1)+'</span>';
 }
-function cleanName(s){
-  return (s||'').replace(/KÄ°TÄ°KATE/gi,'KİTİKATE')
-    .replace(/KiTiKATE/gi,'KİTİKATE')
-    .replace(/ KİTİKATE MAĞAZA/gi,'')
-    .replace(/ Kitikate Mağaza/gi,'')
-    .replace(/ KİTİKATE/gi,'')
-    .trim();
-}
+function cleanName(s){return (s||'').trim();}
 
 function getRange(){
   var d=document.getElementById('fd').value;
