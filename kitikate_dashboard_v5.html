@@ -275,13 +275,14 @@ function getFilters(dr,yil,bas,bit){
 }
 
 async function fetchView(filter,group){
-  var sel=group?group+',miktar,ciro,bk':'miktar,ciro,bk';
+  var sel=group?group+',miktar,ciro,brut_kar':'miktar,ciro,brut_kar';
   var agg={};
   var pageSize=1000;
   var offset=0;
   while(true){
-    var url=SUPA_URL+'/rest/v1/v_ozet?select='+sel+'&'+filter+'&limit='+pageSize+'&offset='+offset;
+    var url=SUPA_URL+'/rest/v1/satis?select='+sel+'&'+filter+'&limit='+pageSize+'&offset='+offset;
     var r=await fetch(url,{headers:H});
+    if(!r.ok) break;
     var data=await r.json();
     if(!Array.isArray(data)||data.length===0) break;
     data.forEach(function(row){
@@ -289,7 +290,7 @@ async function fetchView(filter,group){
       if(!k||k==='null'||k==='undefined') k='(Belirtilmemiş)';
       if(!agg[k]) agg[k]={ciro:0,bk:0,miktar:0};
       agg[k].ciro+=parseFloat(row.ciro||0);
-      agg[k].bk+=parseFloat(row.bk||0);
+      agg[k].bk+=parseFloat(row.brut_kar||0);
       agg[k].miktar+=parseFloat(row.miktar||0);
     });
     if(data.length<pageSize) break;
@@ -302,7 +303,7 @@ async function loadFilters(){
   var data=[];
   var offset=0;
   while(true){
-    var r=await fetch(SUPA_URL+'/rest/v1/v_ozet?select=magaza,marka,ana_grup,cinsiyet&yil=eq.2026&limit=1000&offset='+offset,{headers:H});
+    var r=await fetch(SUPA_URL+'/rest/v1/satis?select=magaza,marka,ana_grup,cinsiyet&yil=eq.2026&limit=1000&offset='+offset,{headers:H});
     var chunk=await r.json();
     if(!Array.isArray(chunk)||chunk.length===0) break;
     data=data.concat(chunk);
