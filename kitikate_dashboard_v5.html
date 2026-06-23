@@ -11,7 +11,6 @@
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:var(--bg);color:var(--text);font-family:Segoe UI,sans-serif;font-size:13px;}
 header{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
-.logo{display:flex;align-items:center;gap:10px;}
 .logo-text{font-size:16px;font-weight:700;letter-spacing:1px;}
 .logo-sub{font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;}
 .badge{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:11px;color:var(--muted);}
@@ -64,8 +63,8 @@ tr:hover td{background:rgba(108,99,255,.06);}
 .legend{display:flex;gap:14px;padding:6px 14px 10px;}
 .li{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--muted);}
 .ld{width:10px;height:10px;border-radius:2px;}
-.loading{display:flex;align-items:center;justify-content:center;min-height:100px;color:var(--muted);}
-.spinner{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin-right:8px;}
+.loading{display:flex;align-items:center;justify-content:center;min-height:80px;color:var(--muted);}
+.spinner{width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin-right:8px;}
 @keyframes spin{to{transform:rotate(360deg)}}
 .upload-area{border:2px dashed var(--border);border-radius:10px;padding:24px;text-align:center;color:var(--muted);cursor:pointer;transition:all .2s;margin-bottom:16px;}
 .upload-area:hover,.upload-area.drag{border-color:var(--accent);color:var(--accent);}
@@ -76,8 +75,9 @@ tr:hover td{background:rgba(108,99,255,.06);}
 </head>
 <body>
 <header>
-  <div class="logo">
-    <div><div class="logo-text">KİTİKATE</div><div class="logo-sub">Operasyon Paneli</div></div>
+  <div>
+    <div class="logo-text">KİTİKATE</div>
+    <div class="logo-sub">Operasyon Paneli</div>
   </div>
   <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
     <div id="vd" class="badge">Bağlanıyor...</div>
@@ -129,7 +129,7 @@ tr:hover td{background:rgba(108,99,255,.06);}
 <div id="panel-magazalar" class="panel">
   <div class="card"><div class="card-hdr">🏪 Mağaza Karşılaştırması</div>
     <div class="tw"><table>
-      <thead><tr><th>Mağaza</th><th>2026 Ciro</th><th>2025 Ciro</th><th>Ciro Büyüme</th><th>2026 BK%</th><th>2025 BK%</th><th>2026 Adet</th><th>2025 Adet</th><th>Adet Büyüme</th></tr></thead>
+      <thead><tr><th>Mağaza</th><th>2026 Ciro</th><th>2025 Ciro</th><th>Ciro %</th><th>2026 BK%</th><th>2025 BK%</th><th>2026 Adet</th><th>2025 Adet</th><th>Adet %</th></tr></thead>
       <tbody id="magaza-tbody"><tr><td colspan="9"><div class="loading"><div class="spinner"></div></div></td></tr></tbody>
     </table></div>
   </div>
@@ -139,21 +139,21 @@ tr:hover td{background:rgba(108,99,255,.06);}
   <div class="two-col">
     <div class="card"><div class="card-hdr">📦 Ana Grup</div><div class="tw"><table>
       <thead><tr><th>Grup</th><th>2026 Ciro</th><th>2025 Ciro</th><th>Büyüme</th><th>2026 Adet</th></tr></thead>
-      <tbody id="grup-tbody"></tbody>
+      <tbody id="grup-tbody"><tr><td colspan="5"><div class="loading"><div class="spinner"></div></div></td></tr></tbody>
     </table></div></div>
     <div class="card"><div class="card-hdr">📂 Alt Grup</div><div class="tw"><table>
       <thead><tr><th>Alt Grup</th><th>2026 Ciro</th><th>2025 Ciro</th><th>Büyüme</th><th>2026 Adet</th></tr></thead>
-      <tbody id="altgrup-tbody"></tbody>
+      <tbody id="altgrup-tbody"><tr><td colspan="5"><div class="loading"><div class="spinner"></div></div></td></tr></tbody>
     </table></div></div>
   </div>
   <div class="two-col">
     <div class="card"><div class="card-hdr">🏷️ Marka</div><div class="tw"><table>
       <thead><tr><th>Marka</th><th>2026 Ciro</th><th>2025 Ciro</th><th>Büyüme</th><th>2026 Adet</th></tr></thead>
-      <tbody id="marka-tbody"></tbody>
+      <tbody id="marka-tbody"><tr><td colspan="5"><div class="loading"><div class="spinner"></div></div></td></tr></tbody>
     </table></div></div>
     <div class="card"><div class="card-hdr">👗 Cinsiyet</div><div class="tw"><table>
       <thead><tr><th>Cinsiyet</th><th>2026 Ciro</th><th>2025 Ciro</th><th>Büyüme</th><th>2026 Adet</th></tr></thead>
-      <tbody id="cinsiyet-tbody"></tbody>
+      <tbody id="cinsiyet-tbody"><tr><td colspan="5"><div class="loading"><div class="spinner"></div></div></td></tr></tbody>
     </table></div></div>
   </div>
 </div>
@@ -197,10 +197,13 @@ var SUPA='https://ieoutgwjssymennmoeck.supabase.co';
 var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imllb3V0Z3dqc3N5bWVubm1vZWNrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwODA2NjYsImV4cCI6MjA5NzY1NjY2Nn0.ykkePahXL_oS6MINLmXOERkKe0uzGYrW1jHwVoYn8AQ';
 var H={'apikey':KEY,'Authorization':'Bearer '+KEY,'Content-Type':'application/json'};
 
-// Global cache — cleared on filter change
-var _cache={};
-// Panel rendered cache — only re-render on filter change
-var _rendered={ozet:false,magazalar:false,urunler:false,gunluk:false};
+// Persistent cache - never cleared unless explicitly reset
+// Key = "filter26|filter25|group" -> aggregated data
+var _C={};
+// Current active filter key
+var _fkey='';
+// Panel render state per filter key
+var _R={};
 
 function fmt(n){return Math.round(n||0).toLocaleString('tr-TR');}
 function fmtM(n){return ((n||0)/1000000).toFixed(2)+'M';}
@@ -235,9 +238,14 @@ function getFil(yil,bas,bit){
   return q;
 }
 
+function curFKey(){
+  var dr=getRange();
+  return getFil(2026,dr.b26,dr.e26)+'||'+getFil(2025,dr.b25,dr.e25);
+}
+
 async function fetch2(filter,group){
   var ckey=filter+'|'+(group||'');
-  if(_cache[ckey]) return _cache[ckey];
+  if(_C[ckey]) return _C[ckey];
   var sel=group?group+',miktar,ciro,brut_kar':'miktar,ciro,brut_kar';
   var agg={};
   var ps=1000,off=0;
@@ -257,13 +265,12 @@ async function fetch2(filter,group){
     if(data.length<ps) break;
     off+=ps;
   }
-  _cache[ckey]=agg;
+  _C[ckey]=agg;
   return agg;
 }
 
 async function loadFilters(){
-  var data=[];
-  var off=0;
+  var data=[],off=0;
   while(true){
     var r=await fetch(SUPA+'/rest/v1/satis_ozet?select=magaza,marka,ana_grup,alt_grup,cinsiyet&yil=eq.2026&limit=1000&offset='+off,{headers:H});
     var chunk=await r.json();
@@ -288,8 +295,20 @@ async function loadOzet(){
   var dr=getRange();
   var f26=getFil(2026,dr.b26,dr.e26);
   var f25=getFil(2025,dr.b25,dr.e25);
+  var fk=curFKey();
+  
+  // Check if already rendered for this filter
+  if(_R[fk+'|ozet']) return;
+  
   document.getElementById('ozet-kpi').innerHTML='<div class="loading"><div class="spinner"></div>Yükleniyor...</div>';
-  var[d26,d25]=await Promise.all([fetch2(f26,null),fetch2(f25,null)]);
+  document.getElementById('top-bars').innerHTML='<div class="loading"><div class="spinner"></div></div>';
+  
+  var[d26,d25,m26,m25,ay26,ay25]=await Promise.all([
+    fetch2(f26,null),fetch2(f25,null),
+    fetch2(f26,'magaza'),fetch2(f25,'magaza'),
+    fetch2(f26,'ay'),fetch2(f25,'ay')
+  ]);
+  
   var c26=d26.__t__?d26.__t__.ciro:0;
   var c25=d25.__t__?d25.__t__.ciro:0;
   var bk26=d26.__t__?d26.__t__.bk:0;
@@ -298,6 +317,7 @@ async function loadOzet(){
   var a25=d25.__t__?d25.__t__.mkt:0;
   var bp26=c26>0?bk26/c26*100:0;
   var bp25=c25>0?bk25/c25*100:0;
+
   document.getElementById('ozet-kpi').innerHTML=
     kpi('blue','2026 Ciro',fmtM(c26)+' TL',dr.b26+' – '+dr.e26,pct(c26,c25)+' vs 2025')+
     kpi('blue','2025 Ciro',fmtM(c25)+' TL',dr.b25+' – '+dr.e25,'')+
@@ -305,65 +325,70 @@ async function loadOzet(){
     kpi('green','2025 Brüt Kâr','%'+bp25.toFixed(1),fmt(bk25)+' TL','')+
     kpi('yellow','2026 Adet',fmt(a26),'',pct(a26,a25)+' vs 2025')+
     kpi('yellow','2025 Adet',fmt(a25),'','');
-  await Promise.all([loadAylik(f26,f25),loadTopMagaza(f26,f25)]);
-  _rendered.ozet=true;
+
+  // Aylık chart
+  var months=['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'];
+  var ays=new Set([...Object.keys(ay26),...Object.keys(ay25)].map(Number));
+  var sortedA=Array.from(ays).filter(function(a){return a>=1&&a<=12;}).sort(function(a,b){return a-b;});
+  var maxV=Math.max.apply(null,sortedA.map(function(a){return Math.max((ay26[a]||{ciro:0}).ciro,(ay25[a]||{ciro:0}).ciro);}));
+  if(maxV){
+    var bars=sortedA.map(function(ay){
+      var h26=((ay26[ay]||{ciro:0}).ciro/maxV*90).toFixed(1);
+      var h25=((ay25[ay]||{ciro:0}).ciro/maxV*90).toFixed(1);
+      return '<div class="dc"><div class="dbs"><div class="d26" style="height:'+h26+'%;background:var(--accent);"></div><div class="d25" style="height:'+h25+'%;background:var(--accent);"></div></div><div class="dlbl">'+(months[ay-1]||ay)+'</div></div>';
+    }).join('');
+    document.getElementById('aylik-chart').innerHTML='<div class="day-chart">'+bars+'</div>';
+  }
+
+  // Top magaza
+  var sortedM=Object.keys(m26).sort(function(a,b){return m26[b].ciro-m26[a].ciro;}).slice(0,8);
+  if(sortedM.length){
+    var maxC=(m26[sortedM[0]]||{ciro:1}).ciro||1;
+    var barsM=sortedM.map(function(mg){
+      var sh=mg.length>18?mg.slice(0,18)+'…':mg;
+      var p26=(m26[mg].ciro/maxC*100).toFixed(0);
+      var p25=((m25[mg]||{ciro:0}).ciro/maxC*100).toFixed(0);
+      return '<div class="bar-row"><div class="bar-lbl" title="'+mg+'">'+sh+'</div><div class="bar-track"><div class="b26" style="width:'+p26+'%;background:var(--accent);"></div><div class="b25" style="width:'+p25+'%;background:var(--accent);"></div></div></div>';
+    }).join('');
+    document.getElementById('top-bars').innerHTML=barsM;
+  }
+
+  _R[fk+'|ozet']=true;
 }
 
 function kpi(cls,lbl,val,sub,cmp){
   return '<div class="kpi '+cls+'"><div class="kpi-label">'+lbl+'</div><div class="kpi-value">'+val+'</div>'+(sub?'<div class="kpi-sub">'+sub+'</div>':'')+(cmp?'<div class="kpi-cmp">'+cmp+'</div>':'')+'</div>';
 }
 
-async function loadAylik(f26,f25){
-  var[m26,m25]=await Promise.all([fetch2(f26,'ay'),fetch2(f25,'ay')]);
-  var months=['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'];
-  var ays=new Set([...Object.keys(m26),...Object.keys(m25)].map(Number));
-  var sorted=Array.from(ays).filter(function(a){return a>=1&&a<=12;}).sort(function(a,b){return a-b;});
-  var maxV=Math.max.apply(null,sorted.map(function(a){return Math.max((m26[a]||{ciro:0}).ciro,(m25[a]||{ciro:0}).ciro);}));
-  if(!maxV)return;
-  var bars=sorted.map(function(ay){
-    var h26=((m26[ay]||{ciro:0}).ciro/maxV*90).toFixed(1);
-    var h25=((m25[ay]||{ciro:0}).ciro/maxV*90).toFixed(1);
-    return '<div class="dc"><div class="dbs"><div class="d26" style="height:'+h26+'%;background:var(--accent);"></div><div class="d25" style="height:'+h25+'%;background:var(--accent);"></div></div><div class="dlbl">'+(months[ay-1]||ay)+'</div></div>';
-  }).join('');
-  document.getElementById('aylik-chart').innerHTML='<div class="day-chart">'+bars+'</div>';
-}
-
-async function loadTopMagaza(f26,f25){
-  var[m26,m25]=await Promise.all([fetch2(f26,'magaza'),fetch2(f25,'magaza')]);
-  var sorted=Object.keys(m26).sort(function(a,b){return m26[b].ciro-m26[a].ciro;}).slice(0,8);
-  var maxC=(m26[sorted[0]]||{ciro:1}).ciro||1;
-  var bars=sorted.map(function(mg){
-    var sh=mg.length>18?mg.slice(0,18)+'…':mg;
-    var p26=(m26[mg].ciro/maxC*100).toFixed(0);
-    var p25=((m25[mg]||{ciro:0}).ciro/maxC*100).toFixed(0);
-    return '<div class="bar-row"><div class="bar-lbl" title="'+mg+'">'+sh+'</div><div class="bar-track"><div class="b26" style="width:'+p26+'%;background:var(--accent);"></div><div class="b25" style="width:'+p25+'%;background:var(--accent);"></div></div></div>';
-  }).join('');
-  document.getElementById('top-bars').innerHTML=bars;
-}
-
 async function loadMagazalar(){
   var dr=getRange();
   var f26=getFil(2026,dr.b26,dr.e26);
   var f25=getFil(2025,dr.b25,dr.e25);
+  var fk=curFKey();
+  if(_R[fk+'|mag']) return;
+  
   var[m26,m25]=await Promise.all([fetch2(f26,'magaza'),fetch2(f25,'magaza')]);
   var all=new Set([...Object.keys(m26),...Object.keys(m25)]);
   var sorted=Array.from(all).sort(function(a,b){return (m26[b]||{ciro:0}).ciro-(m26[a]||{ciro:0}).ciro;});
   var rows=sorted.map(function(mg){
     var c26=(m26[mg]||{ciro:0}).ciro,c25=(m25[mg]||{ciro:0}).ciro;
-    var bp26=c26>0?(m26[mg]||{bk:0}).bk/c26*100:0;
+    var bp26=c26>0?(m26[mg].bk/c26*100):0;
     var bp25=c25>0?(m25[mg]||{bk:0}).bk/c25*100:0;
     var a26=(m26[mg]||{mkt:0}).mkt,a25=(m25[mg]||{mkt:0}).mkt;
     return '<tr><td title="'+mg+'">'+mg+'</td><td>'+fmt(c26)+' ₺</td><td style="color:var(--muted)">'+fmt(c25)+' ₺</td><td>'+pct(c26,c25)+'</td><td style="color:var(--yellow)">%'+bp26.toFixed(1)+'</td><td style="color:var(--muted)">%'+bp25.toFixed(1)+'</td><td>'+fmt(a26)+'</td><td style="color:var(--muted)">'+fmt(a25)+'</td><td>'+pct(a26,a25)+'</td></tr>';
   }).join('');
   document.getElementById('magaza-tbody').innerHTML=rows||'<tr><td colspan="9" style="text-align:center;color:var(--muted)">Veri yok</td></tr>';
-  _rendered.magazalar=true;
+  _R[fk+'|mag']=true;
 }
 
 async function loadUrunler(){
   var dr=getRange();
   var f26=getFil(2026,dr.b26,dr.e26);
   var f25=getFil(2025,dr.b25,dr.e25);
-  var[g26,g25,alt26,alt25,m26,m25,c26,c25]=await Promise.all([
+  var fk=curFKey();
+  if(_R[fk+'|urun']) return;
+
+  var[g26,g25,alt26,alt25,mk26,mk25,c26,c25]=await Promise.all([
     fetch2(f26,'ana_grup'),fetch2(f25,'ana_grup'),
     fetch2(f26,'alt_grup'),fetch2(f25,'alt_grup'),
     fetch2(f26,'marka'),fetch2(f25,'marka'),
@@ -378,15 +403,18 @@ async function loadUrunler(){
   };
   document.getElementById('grup-tbody').innerHTML=tbl(g26,g25);
   document.getElementById('altgrup-tbody').innerHTML=tbl(alt26,alt25);
-  document.getElementById('marka-tbody').innerHTML=tbl(m26,m25);
+  document.getElementById('marka-tbody').innerHTML=tbl(mk26,mk25);
   document.getElementById('cinsiyet-tbody').innerHTML=tbl(c26,c25);
-  _rendered.urunler=true;
+  _R[fk+'|urun']=true;
 }
 
 async function loadGunluk(){
   var dr=getRange();
   var f26=getFil(2026,dr.b26,dr.e26);
   var f25=getFil(2025,dr.b25,dr.e25);
+  var fk=curFKey();
+  if(_R[fk+'|gun']) return;
+
   var[d26,d25]=await Promise.all([fetch2(f26,'tarih'),fetch2(f25,'tarih')]);
   var map25={};
   Object.keys(d25).forEach(function(t){map25[t.replace('2025','2026')]=d25[t];});
@@ -405,7 +433,7 @@ async function loadGunluk(){
     return '<tr><td>'+d+'</td><td>'+fmt(c26)+' ₺</td><td style="color:var(--muted)">'+fmt(c25)+' ₺</td><td>'+pct(c26,c25)+'</td><td>'+fmt((d26[d]||{mkt:0}).mkt)+'</td></tr>';
   }).join('');
   document.getElementById('gunluk-tbody').innerHTML=rows;
-  _rendered.gunluk=true;
+  _R[fk+'|gun']=true;
 }
 
 async function handleFile(file){
@@ -425,11 +453,11 @@ async function handleFile(file){
       status.textContent='İşleniyor...';fill.style.width='30%';
       var hrow=raw[0];
       var fc=function(kws){for(var i=0;i<hrow.length;i++){var h=String(hrow[i]||'').replace(/\n/g,' ').toLowerCase();for(var k=0;k<kws.length;k++){if(h.includes(kws[k]))return i;}}return -1;};
-      var iMag=fc(['mağaza adı','magaza']),iTar=fc(['fatura tarihi']),iUrK=fc(['ürün kodu']),iUrA=fc(['ürün adı']);
+      var iMag=fc(['mağaza adı']),iTar=fc(['fatura tarihi']),iUrK=fc(['ürün kodu']),iUrA=fc(['ürün adı']);
       var iMrk=fc(['marka açıklama']),iAnG=fc(['ana grubu']),iAlG=fc(['alt grubu']),iCns=fc(['cinsiyet']);
       var iBed=fc(['beden']),iSez=fc(['sezon']),iMkt=fc(['miktar']),iCir=fc(['satış tutar vh']);
       var iBK=fc(['brüt kar tutar']),iAls=fc(['alış fiyatı']);
-      var recs=[];
+      var recs=[],dates=new Set();
       for(var i=1;i<raw.length;i++){
         var row=raw[i];if(!row||!row[iMag])continue;
         var tr=row[iTar],tarih='';
@@ -441,8 +469,8 @@ async function handleFile(file){
         if(ciro===0)continue;
         var mg=String(row[iMag]||'').trim();
         if(mg.toUpperCase().indexOf('ONLINE')>=0||mg.toUpperCase().indexOf('E-T')>=0)continue;
-        recs.push({
-          yil:parseInt(tarih.slice(0,4)),ay:parseInt(tarih.slice(5,7)),tarih:tarih,
+        dates.add(tarih);
+        recs.push({yil:parseInt(tarih.slice(0,4)),ay:parseInt(tarih.slice(5,7)),tarih:tarih,
           magaza:mg,urun_kodu:String(row[iUrK]||'').trim(),urun_adi:String(row[iUrA]||'').trim(),
           marka:String(row[iMrk]||'').trim(),ana_grup:String(row[iAnG]||'').trim(),
           alt_grup:String(row[iAlG]||'').trim(),cinsiyet:String(row[iCns]||'').trim(),
@@ -450,8 +478,7 @@ async function handleFile(file){
           miktar:parseFloat(String(row[iMkt]||'0').replace(',','.'))||0,
           ciro:Math.round(ciro*100)/100,
           brut_kar:Math.round((parseFloat(String(row[iBK]||'0').replace(',','.'))||0)*100)/100,
-          alis_fiyati:Math.round((parseFloat(String(row[iAls]||'0').replace(',','.'))||0)*100)/100
-        });
+          alis_fiyati:Math.round((parseFloat(String(row[iAls]||'0').replace(',','.'))||0)*100)/100});
       }
       status.textContent=recs.length+' satır yükleniyor...';fill.style.width='50%';
       var cs=500,total=recs.length,up=0;
@@ -463,26 +490,26 @@ async function handleFile(file){
         fill.style.width=Math.round(50+up/total*40)+'%';
         status.textContent=up+'/'+total+' satır eklendi...';
       }
-      // Update satis_ozet for new date
-      status.textContent='Özet tablo güncelleniyor...';fill.style.width='95%';
-      var maxDate=recs.reduce(function(m,r){return r.tarih>m?r.tarih:m;},'');
-      if(maxDate){
-        await fetch(SUPA+'/rest/v1/satis_ozet?tarih=eq.'+maxDate,{method:'DELETE',headers:H});
-        var ozRecs=[];
+      // Update satis_ozet for each date
+      status.textContent='Özet güncelleniyor...';
+      var dateArr=Array.from(dates);
+      for(var di=0;di<dateArr.length;di++){
+        var dt=dateArr[di];
+        await fetch(SUPA+'/rest/v1/satis_ozet?tarih=eq.'+dt,{method:'DELETE',headers:H});
         var ozMap={};
-        recs.filter(function(r){return r.tarih===maxDate;}).forEach(function(r){
+        recs.filter(function(r){return r.tarih===dt;}).forEach(function(r){
           var k=[r.tarih,r.magaza,r.marka,r.ana_grup,r.alt_grup,r.cinsiyet].join('|');
           if(!ozMap[k]) ozMap[k]={yil:r.yil,ay:r.ay,tarih:r.tarih,magaza:r.magaza,marka:r.marka,ana_grup:r.ana_grup,alt_grup:r.alt_grup,cinsiyet:r.cinsiyet,miktar:0,ciro:0,brut_kar:0};
-          ozMap[k].miktar+=r.miktar;ozMap[k].ciro+=r.ciro;ozMap[k].brut_kar+=r.brut_kar;
+          ozMap[k].miktar+=r.miktar;ozMap[k].ciro=Math.round((ozMap[k].ciro+r.ciro)*100)/100;ozMap[k].brut_kar=Math.round((ozMap[k].brut_kar+r.brut_kar)*100)/100;
         });
-        ozRecs=Object.values(ozMap);
-        for(var s=0;s<ozRecs.length;s+=500){
-          await fetch(SUPA+'/rest/v1/satis_ozet',{method:'POST',headers:Object.assign({},H,{'Prefer':'return=minimal'}),body:JSON.stringify(ozRecs.slice(s,s+500))});
+        var ozArr=Object.values(ozMap);
+        for(var s=0;s<ozArr.length;s+=500){
+          await fetch(SUPA+'/rest/v1/satis_ozet',{method:'POST',headers:Object.assign({},H,{'Prefer':'return=minimal'}),body:JSON.stringify(ozArr.slice(s,s+500))});
         }
       }
       fill.style.width='100%';status.textContent='Tamamlandı!';
-      result.innerHTML='<div style="color:var(--green);font-weight:600">✅ '+total+' satır eklendi! Filtreleri uygulayın.</div>';
-      _cache={};_rendered={ozet:false,magazalar:false,urunler:false,gunluk:false};
+      result.innerHTML='<div style="color:var(--green);font-weight:600">✅ '+total+' satır eklendi! Uygula butonuna basın.</div>';
+      _C={};_R={};
     }catch(err){status.textContent='Hata!';result.innerHTML='<div style="color:var(--red)">❌ '+err.message+'</div>';}
   };
   reader.readAsArrayBuffer(file);
@@ -500,18 +527,19 @@ function switchTab(id){
   document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active');});
   document.querySelector('[onclick="switchTab(\''+id+'\')"]').classList.add('active');
   document.getElementById('panel-'+id).classList.add('active');
-  // Only load if not already rendered
-  if(id==='ozet'&&!_rendered.ozet) loadOzet();
-  else if(id==='magazalar'&&!_rendered.magazalar) loadMagazalar();
-  else if(id==='urunler'&&!_rendered.urunler) loadUrunler();
-  else if(id==='gunluk'&&!_rendered.gunluk) loadGunluk();
+  if(id==='ozet') loadOzet();
+  else if(id==='magazalar') loadMagazalar();
+  else if(id==='urunler') loadUrunler();
+  else if(id==='gunluk') loadGunluk();
 }
 
 function applyFilters(){
-  _cache={};
-  _rendered={ozet:false,magazalar:false,urunler:false,gunluk:false};
-  var a=document.querySelector('.panel.active');
-  if(a)switchTab(a.id.replace('panel-',''));
+  // Don't clear cache — different filter = different cache entry
+  // Just mark current panels as needing re-render
+  var fk=curFKey();
+  _fkey=fk;
+  var id=document.querySelector('.panel.active').id.replace('panel-','');
+  switchTab(id);
 }
 
 async function init(){
