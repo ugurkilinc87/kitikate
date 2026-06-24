@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kitikate</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#F9F9F8;--white:#fff;--text:#111;--muted:#999;--border:#E5E5E3;
+  --red:#DC2626;--yellow:#D97706;--green:#16A34A;--blue:#2563EB;
+  --red-bg:#FEF2F2;--yellow-bg:#FFFBEB;--green-bg:#F0FDF4;--blue-bg:#EFF6FF;
+  --sidebar:240px;
+}
+body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif;font-size:14px;}
+
+/* Layout */
+.app{display:flex;min-height:100vh;}
+.sidebar{width:var(--sidebar);flex-shrink:0;border-right:1px solid var(--border);
+  background:var(--white);position:fixed;top:0;left:0;height:100vh;
+  display:flex;flex-direction:column;overflow:hidden;}
+.main{margin-left:var(--sidebar);flex:1;min-height:100vh;}
+
+/* Sidebar top */
+.sb-top{padding:24px 20px 16px;}
+.brand{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text);}
+.sb-date{font-size:11px;color:var(--muted);margin-top:3px;}
+
+/* Nav */
+.nav{padding:8px 10px;flex:1;overflow-y:auto;}
+.nav-section{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);padding:14px 8px 6px;}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:8px;
+  font-size:13px;color:var(--muted);cursor:pointer;transition:all .12s;margin-bottom:1px;font-weight:400;}
+.nav-item:hover{background:#F5F5F3;color:var(--text);}
+.nav-item.active{background:#F0F0EE;color:var(--text);font-weight:500;}
+.nav-icon{font-size:13px;width:16px;text-align:center;flex-shrink:0;}
+.nav-count{margin-left:auto;font-size:10px;font-weight:600;padding:1px 7px;border-radius:10px;
+  background:#F0F0EE;color:var(--muted);}
+.nav-count.alert{background:var(--red-bg);color:var(--red);}
+
+/* Alert box sidebar */
+.sb-alert{margin:0 10px 16px;padding:12px;background:var(--red-bg);border-radius:10px;}
+.sb-alert-label{font-size:10px;font-weight:700;color:var(--red);letter-spacing:.05em;text-transform:uppercase;margin-bottom:4px;}
+.sb-alert-text{font-size:11px;color:#7F1D1D;line-height:1.5;}
+
+/* Main content */
+.page{display:none;padding:40px 48px;max-width:900px;}
+.page.active{display:block;}
+.page-header{margin-bottom:28px;}
+.page-title{font-size:22px;font-weight:700;letter-spacing:-.4px;}
+.page-sub{font-size:13px;color:var(--muted);margin-top:4px;}
+
+/* ACCORDION */
+.acc{border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:10px;background:var(--white);}
+.acc-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;
+  cursor:pointer;user-select:none;transition:background .12s;}
+.acc-head:hover{background:#FAFAF8;}
+.acc-title{font-size:13px;font-weight:600;display:flex;align-items:center;gap:10px;}
+.acc-count{font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;background:#F0F0EE;color:var(--muted);}
+.acc-count.has{background:var(--red-bg);color:var(--red);}
+.acc-arrow{font-size:11px;color:var(--muted);transition:transform .2s;}
+.acc.open .acc-arrow{transform:rotate(180deg);}
+.acc-body{display:none;border-top:1px solid var(--border);}
+.acc.open .acc-body{display:block;}
+
+/* GÖREV SATIRLARI */
+.task{display:flex;align-items:flex-start;gap:12px;padding:11px 18px;
+  border-bottom:1px solid var(--border);transition:background .1s;}
+.task:last-child{border-bottom:none;}
+.task:hover{background:#FAFAF8;}
+.chk{width:16px;height:16px;border-radius:4px;border:1.5px solid var(--border);
+  appearance:none;-webkit-appearance:none;cursor:pointer;flex-shrink:0;margin-top:1px;
+  transition:all .12s;}
+.chk:hover{border-color:#aaa;}
+.chk:checked{background:var(--green);border-color:var(--green);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='white'%3E%3Cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3E%3C/svg%3E");}
+.task-content{flex:1;min-width:0;}
+.task-text{font-size:13px;line-height:1.4;}
+.task-text.done{color:var(--muted);text-decoration:line-through;}
+.task-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+.del-btn{background:none;border:none;color:var(--border);cursor:pointer;
+  font-size:16px;padding:0;line-height:1;flex-shrink:0;opacity:0;transition:opacity .12s;}
+.task:hover .del-btn{opacity:1;}
+.del-btn:hover{color:var(--red);}
+
+/* ADD ROW */
+.add-area{padding:12px 18px;background:#FAFAF8;border-top:1px solid var(--border);display:flex;gap:8px;}
+.inp{background:var(--white);border:1px solid var(--border);color:var(--text);
+  border-radius:8px;padding:7px 12px;font-size:13px;font-family:inherit;outline:none;
+  transition:border .12s;}
+.inp:focus{border-color:#aaa;}
+.inp-sm{width:120px;}
+.inp-lg{flex:1;}
+.btn-add{background:var(--text);color:#fff;border:none;border-radius:8px;
+  padding:7px 16px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;
+  transition:opacity .12s;white-space:nowrap;}
+.btn-add:hover{opacity:.8;}
+
+/* UYARI SATIRLARI */
+.alert-row{display:flex;align-items:flex-start;gap:12px;padding:13px 18px;border-bottom:1px solid var(--border);}
+.alert-row:last-child{border-bottom:none;}
+.adot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:6px;}
+.adot-r{background:var(--red);}
+.adot-y{background:var(--yellow);}
+.adot-b{background:var(--blue);}
+.alert-body .atitle{font-size:13px;font-weight:500;}
+.alert-body .asub{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.5;}
+.tag{display:inline-flex;align-items:center;font-size:10px;font-weight:700;
+  padding:2px 7px;border-radius:4px;margin-right:6px;letter-spacing:.03em;}
+.tag-r{background:var(--red-bg);color:var(--red);}
+.tag-y{background:var(--yellow-bg);color:var(--yellow);}
+.tag-b{background:var(--blue-bg);color:var(--blue);}
+.tag-g{background:var(--green-bg);color:var(--green);}
+
+/* TABLO */
+.tbl-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+th{background:#FAFAF8;color:var(--muted);font-size:10px;font-weight:600;
+  text-transform:uppercase;letter-spacing:.07em;padding:10px 14px;text-align:right;
+  border-bottom:1px solid var(--border);white-space:nowrap;}
+th:first-child{text-align:left;}
+td{padding:10px 14px;border-bottom:1px solid var(--border);text-align:right;
+  font-variant-numeric:tabular-nums;}
+td:first-child{text-align:left;font-weight:500;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:#FAFAF8;}
+.pos{color:var(--green);font-weight:600;}
+.neg{color:var(--red);font-weight:600;}
+.neutral{color:var(--muted);}
+
+/* PERSONEL GRID */
+.per-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;padding:14px 18px;}
+.per-card{background:#FAFAF8;border-radius:8px;padding:10px 12px;}
+.per-name{font-size:12px;font-weight:600;}
+.per-mag{font-size:11px;color:var(--blue);margin-top:2px;}
+
+/* BOTTOMBAR */
+.bottombar{position:fixed;bottom:0;left:0;right:0;height:56px;
+  background:rgba(255,255,255,.92);backdrop-filter:blur(12px);
+  border-top:1px solid var(--border);display:none;
+  align-items:center;justify-content:space-around;padding:0 8px;z-index:100;}
+.bb-item{display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:8px 16px;cursor:pointer;color:var(--muted);transition:color .12s;}
+.bb-item.active{color:var(--text);}
+.bb-icon{font-size:18px;}
+.bb-label{font-size:10px;font-weight:500;}
+
+@media(max-width:700px){
+  .sidebar{display:none;}
+  .main{margin-left:0;padding-bottom:64px;}
+  .page{padding:24px 16px;}
+  .bottombar{display:flex;}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sb-top">
+    <div class="brand">Kitikate</div>
+    <div class="sb-date" id="sb-date"></div>
+  </div>
+  <div class="nav">
+    <div class="nav-section">Genel</div>
+    <div class="nav-item active" onclick="show('gorevler',this)"><span class="nav-icon">✓</span>Görevler<span class="nav-count alert" id="g-cnt"></span></div>
+    <div class="nav-item" onclick="show('uyarilar',this)"><span class="nav-icon">⚑</span>Uyarılar<span class="nav-count alert">5</span></div>
+    <div class="nav-section">Veriler</div>
+    <div class="nav-item" onclick="show('performans',this)"><span class="nav-icon">↗</span>Performans</div>
+    <div class="nav-item" onclick="show('kiralar',this)"><span class="nav-icon">◻</span>Kira & Sözleşme</div>
+    <div class="nav-item" onclick="show('personel',this)"><span class="nav-icon">◎</span>Personel</div>
+  </div>
+  <div class="sb-alert">
+    <div class="sb-alert-label">⚠ Kritik</div>
+    <div class="sb-alert-text">Forum Erzurum sözleşmesi Ağustos'ta bitiyor</div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- GÖREVLER -->
+<div id="page-gorevler" class="page active">
+  <div class="page-header">
+    <div class="page-title" id="gun-adi"></div>
+    <div class="page-sub">Bekleyen görevler</div>
+  </div>
+  <div id="acc-gorevler"></div>
+</div>
+
+<!-- UYARILAR -->
+<div id="page-uyarilar" class="page">
+  <div class="page-header">
+    <div class="page-title">Uyarılar</div>
+    <div class="page-sub">Aksiyon gerektiren konular</div>
+  </div>
+  <div class="acc open">
+    <div class="acc-head" onclick="toggleAcc(this)">
+      <div class="acc-title">🔴 Kritik</div>
+      <span class="acc-arrow">▼</span>
+    </div>
+    <div class="acc-body">
+      <div class="alert-row"><div class="adot adot-r"></div><div class="alert-body">
+        <div class="atitle"><span class="tag tag-r">KRİTİK</span>Forum Erzurum Sözleşmesi</div>
+        <div class="asub">Ağustos 2026'da bitiyor — Multi Erzurum ile müzakere başlatılmalı</div>
+      </div></div>
+      <div class="alert-row"><div class="adot adot-r"></div><div class="alert-body">
+        <div class="atitle"><span class="tag tag-r">DAVA</span>Edirne AVM & Bornova AVM</div>
+        <div class="asub">ERASTA ve Multi Türkmall — sözleşmeler 2023'te bitti, dava devam ediyor</div>
+      </div></div>
+      <div class="alert-row"><div class="adot adot-r"></div><div class="alert-body">
+        <div class="atitle"><span class="tag tag-r">ZARAR</span>4 Mağaza Zararda</div>
+        <div class="asub">Ceylan Karavil · Tuna Life · Historia · Edirne — Ocak–Mayıs 2026</div>
+      </div></div>
+    </div>
+  </div>
+  <div class="acc open">
+    <div class="acc-head" onclick="toggleAcc(this)">
+      <div class="acc-title">🟡 Müzakere & Karar</div>
+      <span class="acc-arrow">▼</span>
+    </div>
+    <div class="acc-body">
+      <div class="alert-row"><div class="adot adot-y"></div><div class="alert-body">
+        <div class="atitle"><span class="tag tag-y">MÜZAKERE</span>Historia AVM Kira</div>
+        <div class="asub">Mevcut: 136.652 TL · AVM teklifi: 250.000+KDV · Hedef: 170-180K TL · Meral Soysal</div>
+      </div></div>
+      <div class="alert-row"><div class="adot adot-y"></div><div class="alert-body">
+        <div class="atitle"><span class="tag tag-y">KARAR</span>Şenay Işık — Tek Mağaza Talebi</div>
+        <div class="asub">Şu an Antares, 365 AVM, Cepa'yı yönetiyor</div>
+      </div></div>
+      <div class="alert-row"><div class="adot adot-b"></div><div class="alert-body">
+        <div class="atitle"><span class="tag tag-b">KİRALAMA</span>Ankara Jewel & Tekirdağ Cadde</div>
+        <div class="asub">Yeni mağaza kira görüşmeleri devam ediyor</div>
+      </div></div>
+      <div class="alert-row"><div class="adot adot-b"></div><div class="alert-body">
+        <div class="atitle"><span class="tag tag-b">KİRALAMA</span>Balat Sözleşmesi</div>
+        <div class="asub">Durum netleştirilecek</div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- PERFORMANS -->
+<div id="page-performans" class="page">
+  <div class="page-header">
+    <div class="page-title">Performans</div>
+    <div class="page-sub">Ocak–Mayıs 2026 kümülatif, KDV hariç</div>
+  </div>
+  <div class="acc open">
+    <div class="acc-head" onclick="toggleAcc(this)">
+      <div class="acc-title">📊 Mağaza Bazlı Kârlılık</div>
+      <span class="acc-arrow">▼</span>
+    </div>
+    <div class="acc-body">
+      <div class="tbl-wrap">
+        <table id="perf-table">
+          <thead><tr>
+            <th>Mağaza</th><th>Ciro</th><th>Brüt Kâr %</th><th>Net Kâr</th><th>Başabaş</th>
+          </tr></thead>
+          <tbody id="perf-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- KİRALAR -->
+<div id="page-kiralar" class="page">
+  <div class="page-header">
+    <div class="page-title">Kira & Sözleşme</div>
+    <div class="page-sub">KDV hariç aylık kira bedelleri</div>
+  </div>
+  <div class="acc open">
+    <div class="acc-head" onclick="toggleAcc(this)">
+      <div class="acc-title">📄 Aylık Kiralar</div>
+      <span class="acc-arrow">▼</span>
+    </div>
+    <div class="acc-body">
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Mağaza</th><th>Kiralayan Firma</th><th>KDV Hariç</th><th>KDV Dahil</th></tr></thead>
+          <tbody id="kira-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PERSONEL -->
+<div id="page-personel" class="page">
+  <div class="page-header">
+    <div class="page-title">Personel</div>
+    <div class="page-sub">60 aktif personel · 23 mağaza</div>
+  </div>
+  <div class="acc open">
+    <div class="acc-head" onclick="toggleAcc(this)">
+      <div class="acc-title">👥 Personel Listesi</div>
+      <span class="acc-arrow">▼</span>
+    </div>
+    <div class="acc-body">
+      <div class="per-grid" id="per-grid"></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+</div><!-- /app -->
+
+<!-- BOTTOM BAR (mobile) -->
+<div class="bottombar">
+  <div class="bb-item active" onclick="show('gorevler',this)"><div class="bb-icon">✓</div><div class="bb-label">Görevler</div></div>
+  <div class="bb-item" onclick="show('uyarilar',this)"><div class="bb-icon">⚑</div><div class="bb-label">Uyarılar</div></div>
+  <div class="bb-item" onclick="show('performans',this)"><div class="bb-icon">↗</div><div class="bb-label">Performans</div></div>
+  <div class="bb-item" onclick="show('kiralar',this)"><div class="bb-icon">◻</div><div class="bb-label">Kiralar</div></div>
+  <div class="bb-item" onclick="show('personel',this)"><div class="bb-icon">◎</div><div class="bb-label">Personel</div></div>
+</div>
+
+<script>
+var DATA = {"kira": [{"magaza": "TRABZON FORUM", "firma": "AVRUPAKENT GAYRİMENKUL", "sabit": 262370.89, "kdvhariç": 218642.41}, {"magaza": "İSTANBUL FORUM", "firma": "MULTİ İSTANBUL EMLAK GELİŞTİRME VE YATIRIM A.Ş.", "sabit": 192191.12, "kdvhariç": 160159.27}, {"magaza": "MERSİN FORUM", "firma": "FORUM MERSİN GAYRIMENKUL YATIRIM A.Ş", "sabit": 178725.35, "kdvhariç": 148937.79}, {"magaza": "MALL OF", "firma": "TORUNLAR GAYRİMENKUL YATIRIM ORTAKLIĞI ANONİM ŞTİ", "sabit": 172001.24, "kdvhariç": 143334.37}, {"magaza": "OPTİMUM", "firma": "ESENTEPE GAYRİMENKUL YAT. İNŞ.TUR.SAN.TİC.LTD.ŞTİ", "sabit": 170400.0, "kdvhariç": 142000.0}, {"magaza": "HISTORY AVM", "firma": "FATİH ALIŞVERİŞ MERKEZİ TUR.İŞL. VE İNŞ.A.Ş", "sabit": 163981.8, "kdvhariç": 136651.5}, {"magaza": "FORUM  KAYSERİ", "firma": "FORUM KAYSERİ GAYRIMENKUL YATIRIM A.Ş", "sabit": 141196.27, "kdvhariç": 117663.56}, {"magaza": "FORUM ÇAMLIK", "firma": "MULTİ ÇAMLIK EMLAK GELİŞTİRME VE YATIRIM A.Ş", "sabit": 111518.28, "kdvhariç": 92931.9}, {"magaza": "DİYARBAKIR", "firma": "CEYLAN KAVİL", "sabit": 97212.0, "kdvhariç": 81010.0}, {"magaza": "AYDIN FORUM", "firma": "MULTİ AYDIN EMLAK GELİŞTİRME VE YATIRIM AŞ.", "sabit": 95281.44, "kdvhariç": 79401.2}, {"magaza": "ANATOLIUM AVM", "firma": "KLEPİERRE GAYRIMENKUL YÖNETİMİ VE YAT.TİC.A.Ş", "sabit": 81000.0, "kdvhariç": 67500.0}, {"magaza": "ANTARES AVM", "firma": "DOLUNAY AVM YATR.İŞLETME VE KONUT İNT,Ş.TİC.A.Ş", "sabit": 80657.14, "kdvhariç": 67214.28}, {"magaza": "BUAYAKA", "firma": "BUYAKA GAYRIMENKUL GELŞ. VE YATR.İŞL.A.Ş.", "sabit": 70923.24, "kdvhariç": 59102.7}, {"magaza": "CEPA", "firma": "ÜSTÜNÇELİK MALZ.İML.MNT.İNŞ.TAAH.TURZ.TİC.SAN.A.Ş.", "sabit": 66000.0, "kdvhariç": 55000.0}, {"magaza": "MARMARA FORUM", "firma": "MULTI YIRMIBES EMLAK GELISTIRME YATIRIM INS.VE TIC", "sabit": 65573.51, "kdvhariç": 54644.59}, {"magaza": "365 AVM", "firma": "MİGROS TİCARET A.Ş", "sabit": 63254.65, "kdvhariç": 52712.21}, {"magaza": "SYMBOL KOCAELİ", "firma": "KAVANLAR İNŞ.BET.TUR.OTOM.PAZ.SAN.TİC.LTD.ŞTİ", "sabit": 60529.49, "kdvhariç": 50441.24}, {"magaza": "41 BURDA AVM", "firma": "SARAYBAHÇE ALIŞVERİŞ MERKEZLERİ TİC.AŞ.", "sabit": 59343.96, "kdvhariç": 49453.3}, {"magaza": "ERZURUM FORUM", "firma": "MULTİ ERZURUM EMLAK GELİŞTİRME VE YAT.LTD.ŞTİ", "sabit": 51606.65, "kdvhariç": 43005.54}, {"magaza": "TEPE NATILU-IUS", "firma": "TEPE EMLAK YATIRIM", "sabit": 48800.4, "kdvhariç": 40667.0}, {"magaza": "PENDİK MAĞAZA 1", "firma": "HÜSNÜ RIZA ÖZGÜÇ", "sabit": 31898.16, "kdvhariç": 26581.8}, {"magaza": "PENDİK MAĞAZA 2", "firma": "RÜSTEM YILDIZ", "sabit": 16069.03, "kdvhariç": 13390.86}, {"magaza": "PALLADİUM AVM", "firma": "AKPORTFÖY YÖNETİMİ A.Ş. DÖRDÜNCÜ GAYRİMENKUL YAT.FONU", "sabit": 0, "kdvhariç": 0.0}, {"magaza": "KUMSMALL", "firma": "nan", "sabit": 0, "kdvhariç": 0.0}, {"magaza": "EDİRNE", "firma": "ERASTA", "sabit": 86745.94, "kdvhariç": 72288.28}, {"magaza": "KORUPARK", "firma": "TORUNLAR", "sabit": 177015.1, "kdvhariç": 147512.58}, {"magaza": "BORNOVA", "firma": "MULTİ TÜRKMALL", "sabit": 206369.56, "kdvhariç": 171974.63}, {"magaza": "ADANA", "firma": "ERDEMOGLU PROJE", "sabit": 99575.34, "kdvhariç": 82979.45}], "magazalar": [{"magaza": "KORUPARK AVM", "ciro": 6848484.33, "brutpct": 55.0, "netkar": 1555921.85, "basabas": 809610.11, "gider": 2232558.45}, {"magaza": "ANTARES AVM", "ciro": 5460582.16, "brutpct": 55.0, "netkar": 1296587.86, "basabas": 619685.25, "gider": 1696261.42}, {"magaza": "KAYSERİ FORUM", "ciro": 6101706.49, "brutpct": 55.0, "netkar": 1244814.08, "basabas": 764975.03, "gider": 2083661.12}, {"magaza": "ADANA AVM", "ciro": 5565516.02, "brutpct": 55.0, "netkar": 1222148.48, "basabas": 666969.35, "gider": 1822246.55}, {"magaza": "CEPA AVM", "ciro": 4989857.07, "brutpct": 56.0, "netkar": 1085999.69, "basabas": 608512.2, "gider": 1685482.2}, {"magaza": "MERSİN FORUM", "ciro": 6527946.04, "brutpct": 53.0, "netkar": 875925.48, "basabas": 997590.98, "gider": 2576353.51}, {"magaza": "İZMİR BORNOVA AVM", "ciro": 5744468.48, "brutpct": 55.0, "netkar": 874426.04, "basabas": 831523.56, "gider": 2263071.61}, {"magaza": "TRABZON FORUM", "ciro": 7006261.14, "brutpct": 53.0, "netkar": 831474.19, "basabas": 1089720.91, "gider": 2893249.73}, {"magaza": "MALL OF", "ciro": 6982458.79, "brutpct": 56.0, "netkar": 798323.55, "basabas": 1112977.06, "gider": 3087711.9}, {"magaza": "İSTANBUL FORUM", "ciro": 5774081.99, "brutpct": 54.0, "netkar": 782929.78, "basabas": 866067.67, "gider": 2341920.01}, {"magaza": "365 AVM", "ciro": 3958673.16, "brutpct": 55.0, "netkar": 769367.01, "basabas": 513072.21, "gider": 1412853.06}, {"magaza": "SYMBOL AVM", "ciro": 4279086.26, "brutpct": 54.0, "netkar": 686660.43, "basabas": 599305.27, "gider": 1605933.29}, {"magaza": "TEPENATİLÜS AVM", "ciro": 4009850.92, "brutpct": 55.0, "netkar": 606965.7, "basabas": 581112.9, "gider": 1598180.32}, {"magaza": "OPTİMUM", "ciro": 5471535.39, "brutpct": 53.0, "netkar": 390511.95, "basabas": 942737.78, "gider": 2488598.02}, {"magaza": "BUYAKA AVM", "ciro": 2910716.4, "brutpct": 56.0, "netkar": 266340.36, "basabas": 488059.27, "gider": 1354654.88}, {"magaza": "DENİZLİ FORUM", "ciro": 3515939.87, "brutpct": 55.0, "netkar": 225170.99, "basabas": 622766.62, "gider": 1725992.32}, {"magaza": "FORUM ERZURUM", "ciro": 2948750.31, "brutpct": 54.0, "netkar": 143951.98, "basabas": 539826.68, "gider": 1445734.56}, {"magaza": "PALADIUM", "ciro": 2660710.48, "brutpct": 55.0, "netkar": 136861.3, "basabas": 481943.33, "gider": 1321040.61}, {"magaza": "FORUM AYDIN", "ciro": 2766890.45, "brutpct": 55.0, "netkar": 45662.94, "basabas": 538094.56, "gider": 1481827.0}, {"magaza": "41 BURDA AVM", "ciro": 2641565.87, "brutpct": 56.0, "netkar": 39360.56, "basabas": 515989.02, "gider": 1429672.57}, {"magaza": "PENDİK", "ciro": 2471809.32, "brutpct": 56.0, "netkar": 33753.26, "basabas": 483813.25, "gider": 1355242.92}, {"magaza": "EDİRNE AVM", "ciro": 2549791.35, "brutpct": 55.0, "netkar": -5092.11, "basabas": 512886.14, "gider": 1398944.45}, {"magaza": "ANATOLIUM", "ciro": 989088.22, "brutpct": 53.0, "netkar": -35232.54, "basabas": 0.0, "gider": 558951.26}, {"magaza": "HİSTORİA", "ciro": 3392277.64, "brutpct": 54.0, "netkar": -40659.57, "basabas": 694886.4, "gider": 1879812.17}, {"magaza": "KAYSERİ TUNA LİFE", "ciro": 1812504.25, "brutpct": 53.0, "netkar": -190950.0, "basabas": 436476.94, "gider": 1147315.73}, {"magaza": "CEYLAN KARAVİL AVM", "ciro": 2276770.49, "brutpct": 57.0, "netkar": -192060.84, "basabas": 527825.96, "gider": 1482454.84}, {"magaza": "MARMARA FORUM", "ciro": 2387331.86, "brutpct": 54.0, "netkar": -197204.86, "basabas": 551254.63, "gider": 1496476.75}, {"magaza": "Genel Toplam", "ciro": 112044654.75, "brutpct": 55.0, "netkar": 13251957.56, "basabas": 644358.63, "gider": 47866201.25}], "personel": [{"ad": "Arife Aykurtuldu", "magaza": "Symbol", "durum": "Aktif"}, {"ad": "Arzu Laç", "magaza": "Pendik", "durum": "Aktif"}, {"ad": "Aslıhan Uslular", "magaza": "Kayseri Forum", "durum": "Aktif"}, {"ad": "Aynur Kurt", "magaza": "Optimum", "durum": "Aktif"}, {"ad": "Aynur Öztürk", "magaza": "Forum Aydın", "durum": "Aktif"}, {"ad": "Ayten Yılmaz", "magaza": "Diyarbakır", "durum": "Aktif"}, {"ad": "Ayşe Kayali", "magaza": "İzmir Bornova", "durum": "Aktif"}, {"ad": "Beste Açak", "magaza": "Erzurum", "durum": "Aktif"}, {"ad": "Birce Gizem Esunti̇mur", "magaza": "Buyaka", "durum": "Aktif"}, {"ad": "Büşra Kibar", "magaza": "TRABZON FORUM", "durum": "Aktif"}, {"ad": "Büşra Ağbayrak", "magaza": "Korupark", "durum": "Aktif"}, {"ad": "Büşra Polat", "magaza": "İstanbul Forum", "durum": "Aktif"}, {"ad": "Demet Karabulut", "magaza": "41 Burada", "durum": "Aktif"}, {"ad": "Deniz Mortepe", "magaza": "Adana AVM", "durum": "Aktif"}, {"ad": "Deniz Bayrak", "magaza": "TRABZON FORUM", "durum": "Aktif"}, {"ad": "Derya Korkmaz", "magaza": "CEPA AVM", "durum": "Aktif"}, {"ad": "Dilan Korkusuz", "magaza": "İzmir Bornova", "durum": "Aktif"}, {"ad": "Dilara Sırma Pınarbaşı", "magaza": "Antares AVM", "durum": "Aktif"}, {"ad": "Dilruba Kiraz", "magaza": "Kayseri Forum", "durum": "Aktif"}, {"ad": "Ebru Başar", "magaza": "Korupark", "durum": "Aktif"}, {"ad": "Elif Neriman Ünan", "magaza": "Denizli", "durum": "Aktif"}, {"ad": "Elif Nur Ay", "magaza": "Diyarbakır", "durum": "Aktif"}, {"ad": "Elmas Bilirol", "magaza": "Optimum", "durum": "Aktif"}, {"ad": "Emine Başkan", "magaza": "TRABZON FORUM", "durum": "Aktif"}, {"ad": "Emine Nur Yükçü", "magaza": "Tepe", "durum": "Aktif"}, {"ad": "Esra Buyraz", "magaza": "CEPA AVM", "durum": "Aktif"}, {"ad": "Esra Yurtaşan", "magaza": "Tuna Life, Kayseri Forum", "durum": "Aktif"}, {"ad": "Goncagül Yılmaz", "magaza": "Tuna Life", "durum": "Aktif"}, {"ad": "Gökhan Test Merden", "magaza": "Test Departmanı", "durum": "Aktif"}, {"ad": "Gözde Tekmen", "magaza": "365 AVM", "durum": "Aktif"}, {"ad": "Güler Şengil", "magaza": "İstanbul Forum", "durum": "Aktif"}, {"ad": "Gülfer Ayar", "magaza": "Optimum", "durum": "Aktif"}, {"ad": "Gülşen Gerni", "magaza": "Erzurum", "durum": "Aktif"}, {"ad": "Hatice Uçar", "magaza": "TRABZON FORUM", "durum": "Aktif"}, {"ad": "Ilknur Yorgun", "magaza": "Edirne AVM", "durum": "Aktif"}, {"ad": "Kadriye Yıldırım", "magaza": "Tuna Life", "durum": "Aktif"}, {"ad": "Kayıt Personeli", "magaza": "Test Departmanı", "durum": "Aktif"}, {"ad": "Keziban Dikici", "magaza": "İzmir Bornova", "durum": "Aktif"}, {"ad": "Kubra Arslan", "magaza": "Edirne AVM", "durum": "Aktif"}, {"ad": "Kübra Menteş", "magaza": "Mall Of", "durum": "Aktif"}, {"ad": "Lale Bayram", "magaza": "Symbol", "durum": "Aktif"}, {"ad": "Mahide Elinegüven", "magaza": "Symbol", "durum": "Aktif"}, {"ad": "Medine Kaya", "magaza": "Adana AVM", "durum": "Aktif"}, {"ad": "Merve Akdoğan", "magaza": "41 Burada", "durum": "Aktif"}, {"ad": "Merve Özgür", "magaza": "Korupark", "durum": "Aktif"}, {"ad": "Naime Melek Ünal", "magaza": "Mersin", "durum": "Aktif"}, {"ad": "Necla Demir", "magaza": "Mersin", "durum": "Aktif"}, {"ad": "Nergiz Deniz", "magaza": "Edirne AVM", "durum": "Aktif"}, {"ad": "Nesrin Er", "magaza": "Forum Aydın", "durum": "Aktif"}, {"ad": "Nisa Saç", "magaza": "Historia", "durum": "Aktif"}, {"ad": "Nurcihan Karadeniz", "magaza": "Diyarbakır", "durum": "Aktif"}, {"ad": "Rümeysa Tokatlı", "magaza": "Tepe", "durum": "Aktif"}, {"ad": "Rüya Şentürk", "magaza": "Mall Of", "durum": "Aktif"}, {"ad": "Sedanur Serttaş", "magaza": "Erzurum", "durum": "Aktif"}, {"ad": "Sedef Belyurt", "magaza": "Denizli", "durum": "Aktif"}, {"ad": "Sevcan Kartal", "magaza": "Mall Of", "durum": "Aktif"}, {"ad": "Sevda Doğrugider", "magaza": "Pendik", "durum": "Aktif"}, {"ad": "Sude Altınışık", "magaza": "Palaidum", "durum": "Aktif"}, {"ad": "Sümeyye Sağlam", "magaza": "Historia", "durum": "Aktif"}, {"ad": "Sıla Avcı", "magaza": "41 Burada", "durum": "Aktif"}, {"ad": "Sıla Şara Arslan", "magaza": "Forum Aydın", "durum": "Aktif"}, {"ad": "Tuğba Aydin", "magaza": "Buyaka", "durum": "Aktif"}, {"ad": "Tuğba Tunç", "magaza": "Antares AVM", "durum": "Aktif"}, {"ad": "Zehra Seda Atay", "magaza": "Buyaka", "durum": "Aktif"}, {"ad": "Zekiye Betül Develi", "magaza": "Historia", "durum": "Aktif"}, {"ad": "Çiğdem Eraslan", "magaza": "Mersin", "durum": "Aktif"}, {"ad": "Çiğdem Yener Özdemir", "magaza": "İstanbul Forum", "durum": "Aktif"}, {"ad": "Özden Kıraç", "magaza": "Tepe", "durum": "Aktif"}, {"ad": "Özlem Yalçın", "magaza": "Adana AVM", "durum": "Aktif"}, {"ad": "Özlem Tekmen", "magaza": "365 AVM", "durum": "Aktif"}, {"ad": "Şenay Işık", "magaza": "Antares AVM, 365 AVM, CEPA AVM", "durum": "Aktif"}, {"ad": "Şevval Çatalca", "magaza": "Palaidum", "durum": "Aktif"}, {"ad": "Şeyma Kaçar", "magaza": "Palaidum", "durum": "Aktif"}, {"ad": "Şeyma Eroğlu", "magaza": "Denizli", "durum": "Aktif"}], "aylar": {"365 AVM": {"OCAK": {"ciro": 658786.82, "netkar": 105569.65}, "ŞUBAT": {"ciro": 634022.1, "netkar": 98604.14}, "MART": {"ciro": 970395.0, "netkar": 220513.04}, "NİSAN": {"ciro": 799711.17, "netkar": 165049.64}, "MAYİS": {"ciro": 895758.07, "netkar": 179630.54}}, "41 BURDA AVM": {"OCAK": {"ciro": 450160.93, "netkar": -27659.64}, "ŞUBAT": {"ciro": 377160.52, "netkar": -57184.09}, "MART": {"ciro": 810630.0, "netkar": 118657.09}, "NİSAN": {"ciro": 413491.69, "netkar": -29572.16}, "MAYİS": {"ciro": 590122.73, "netkar": 35119.36}}, "ADANA AVM": {"OCAK": {"ciro": 871981.44, "netkar": 154123.18}, "ŞUBAT": {"ciro": 799847.21, "netkar": 145246.4}, "MART": {"ciro": 1564250.0, "netkar": 398674.95}, "NİSAN": {"ciro": 1019717.29, "netkar": 227359.66}, "MAYİS": {"ciro": 1309720.08, "netkar": 296744.29}}, "ANATOLIUM": {"OCAK": {"ciro": 494198.82, "netkar": 3860.5}, "ŞUBAT": {"ciro": 494889.4, "netkar": -39093.04}, "NİSAN": {"ciro": 0.0, "netkar": 0.0}, "MAYİS": {"ciro": 0.0, "netkar": 0.0}}, "ANTARES AVM": {"OCAK": {"ciro": 912942.15, "netkar": 210642.88}, "ŞUBAT": {"ciro": 836669.19, "netkar": 130851.96}, "MART": {"ciro": 1405364.0, "netkar": 396122.09}, "NİSAN": {"ciro": 913117.14, "netkar": 171930.78}, "MAYİS": {"ciro": 1392489.68, "netkar": 387040.14}}, "BUYAKA AVM": {"OCAK": {"ciro": 442188.78, "netkar": 17618.33}, "ŞUBAT": {"ciro": 352683.38, "netkar": -30358.17}, "MART": {"ciro": 762900.0, "netkar": 120179.65}, "NİSAN": {"ciro": 608902.13, "netkar": 65554.2}, "MAYİS": {"ciro": 744042.11, "netkar": 93346.36}}, "CEPA AVM": {"OCAK": {"ciro": 844937.92, "netkar": 149422.58}, "ŞUBAT": {"ciro": 648904.18, "netkar": 72465.07}, "MART": {"ciro": 1139251.0, "netkar": 262200.88}, "NİSAN": {"ciro": 1114039.79, "netkar": 273192.76}, "MAYİS": {"ciro": 1242724.18, "netkar": 328718.39}}, "CEYLAN KARAVİL AVM": {"OCAK": {"ciro": 283197.54, "netkar": -137824.69}, "ŞUBAT": {"ciro": 289286.89, "netkar": -113003.13}, "MART": {"ciro": 655828.0, "netkar": 39597.48}, "NİSAN": {"ciro": 414531.38, "netkar": -33525.14}, "MAYİS": {"ciro": 633926.68, "netkar": 52694.64}}, "DENİZLİ FORUM": {"OCAK": {"ciro": 660067.69, "netkar": 31832.39}, "ŞUBAT": {"ciro": 514770.55, "netkar": -41068.27}, "MART": {"ciro": 820115.0, "netkar": 86102.9}, "NİSAN": {"ciro": 634979.23, "netkar": 40574.96}, "MAYİS": {"ciro": 886007.4, "netkar": 107729.01}}, "EDİRNE AVM": {"OCAK": {"ciro": 507385.82, "netkar": -678.05}, "ŞUBAT": {"ciro": 309005.12, "netkar": -91982.22}, "MART": {"ciro": 742710.0, "netkar": 88869.69}, "NİSAN": {"ciro": 484782.23, "netkar": 3454.1}, "MAYİS": {"ciro": 505908.18, "netkar": -4755.63}}, "FORUM AYDIN": {"OCAK": {"ciro": 482393.21, "netkar": -2753.51}, "ŞUBAT": {"ciro": 416085.59, "netkar": -53431.59}, "MART": {"ciro": 688006.0, "netkar": 70127.79}, "NİSAN": {"ciro": 479969.56, "netkar": -13324.48}, "MAYİS": {"ciro": 700436.09, "netkar": 45044.73}}, "FORUM ERZURUM": {"OCAK": {"ciro": 430697.74, "netkar": -16272.97}, "ŞUBAT": {"ciro": 366972.35, "netkar": -78184.6}, "MART": {"ciro": 1004300.0, "netkar": 215005.42}, "NİSAN": {"ciro": 463123.96, "netkar": -25933.73}, "MAYİS": {"ciro": 683656.26, "netkar": 49337.87}}, "HİSTORİA": {"OCAK": {"ciro": 658804.73, "netkar": -12359.52}, "ŞUBAT": {"ciro": 595108.57, "netkar": -29074.98}, "MART": {"ciro": 585374.0, "netkar": -79432.89}, "NİSAN": {"ciro": 732919.52, "netkar": 36659.17}, "MAYİS": {"ciro": 820070.82, "netkar": 43548.65}}, "İSTANBUL FORUM": {"OCAK": {"ciro": 1000280.44, "netkar": 122233.89}, "ŞUBAT": {"ciro": 890905.93, "netkar": 66367.57}, "MART": {"ciro": 1569061.0, "netkar": 337896.87}, "NİSAN": {"ciro": 981621.11, "netkar": 66695.28}, "MAYİS": {"ciro": 1332213.51, "netkar": 189736.17}}, "İZMİR BORNOVA AVM": {"OCAK": {"ciro": 796672.72, "netkar": 13828.39}, "ŞUBAT": {"ciro": 771003.28, "netkar": 34481.78}, "MART": {"ciro": 1596206.0, "netkar": 379696.81}, "NİSAN": {"ciro": 1213212.84, "netkar": 156896.57}, "MAYİS": {"ciro": 1367373.64, "netkar": 289522.48}}, "KAYSERİ FORUM": {"OCAK": {"ciro": 1064974.99, "netkar": 173084.95}, "ŞUBAT": {"ciro": 791669.58, "netkar": 84869.64}, "MART": {"ciro": 1752406.0, "netkar": 499740.24}, "NİSAN": {"ciro": 1141423.64, "netkar": 161701.86}, "MAYİS": {"ciro": 1351232.28, "netkar": 325417.38}}, "KAYSERİ TUNA LİFE": {"OCAK": {"ciro": 368992.68, "netkar": -18014.67}, "ŞUBAT": {"ciro": 233370.29, "netkar": -102183.15}, "MART": {"ciro": 486710.0, "netkar": 9786.64}, "NİSAN": {"ciro": 304936.31, "netkar": -59599.01}, "MAYİS": {"ciro": 418494.97, "netkar": -20939.81}}, "KORUPARK AVM": {"OCAK": {"ciro": 1076979.2, "netkar": 168548.11}, "ŞUBAT": {"ciro": 1013256.18, "netkar": 139262.11}, "MART": {"ciro": 1822105.0, "netkar": 519748.1}, "NİSAN": {"ciro": 1247884.18, "netkar": 249412.72}, "MAYİS": {"ciro": 1688259.77, "netkar": 478950.82}}, "MALL OF": {"OCAK": {"ciro": 1107840.59, "netkar": 85753.73}, "ŞUBAT": {"ciro": 861342.64, "netkar": -44207.12}, "MART": {"ciro": 1595101.0, "netkar": 234827.94}, "NİSAN": {"ciro": 1403951.77, "netkar": 114206.8}, "MAYİS": {"ciro": 2014222.79, "netkar": 407742.2}}, "MARMARA FORUM": {"OCAK": {"ciro": 450425.45, "netkar": -24304.06}, "ŞUBAT": {"ciro": 338128.04, "netkar": -92891.35}, "MART": {"ciro": 531574.0, "netkar": -52037.18}, "NİSAN": {"ciro": 447019.65, "netkar": -37986.89}, "MAYİS": {"ciro": 620184.72, "netkar": 10014.63}}, "MERSİN FORUM": {"OCAK": {"ciro": 988225.29, "netkar": 41883.76}, "ŞUBAT": {"ciro": 769915.01, "netkar": -167173.47}, "MART": {"ciro": 1788031.0, "netkar": 455628.38}, "NİSAN": {"ciro": 1117120.01, "netkar": 75850.0}, "MAYİS": {"ciro": 1864654.73, "netkar": 469736.81}}, "OPTİMUM": {"OCAK": {"ciro": 887108.35, "netkar": 20513.11}, "ŞUBAT": {"ciro": 728931.24, "netkar": -73311.88}, "MART": {"ciro": 1546246.0, "netkar": 233175.47}, "NİSAN": {"ciro": 875288.49, "netkar": -1099.33}, "MAYİS": {"ciro": 1433961.31, "netkar": 211234.57}}, "PALADIUM": {"OCAK": {"ciro": 503776.02, "netkar": 37651.51}, "ŞUBAT": {"ciro": 408534.4, "netkar": 15073.88}, "MART": {"ciro": 692323.0, "netkar": 55056.81}, "NİSAN": {"ciro": 501272.75, "netkar": 11861.67}, "MAYİS": {"ciro": 554804.31, "netkar": 17217.43}}, "PENDİK": {"OCAK": {"ciro": 394011.04, "netkar": -34493.79}, "ŞUBAT": {"ciro": 329559.85, "netkar": -82556.44}, "MART": {"ciro": 541437.0, "netkar": 25795.53}, "NİSAN": {"ciro": 506884.6, "netkar": 21402.94}, "MAYİS": {"ciro": 699916.83, "netkar": 103605.02}}, "SYMBOL AVM": {"OCAK": {"ciro": 908460.66, "netkar": 175975.42}, "ŞUBAT": {"ciro": 643793.62, "netkar": 68202.72}, "MART": {"ciro": 1031522.0, "netkar": 251569.24}, "NİSAN": {"ciro": 667011.1, "netkar": 33561.14}, "MAYİS": {"ciro": 1028298.88, "netkar": 157351.91}}, "TEPENATİLÜS AVM": {"OCAK": {"ciro": 729704.14, "netkar": 125415.93}, "ŞUBAT": {"ciro": 610462.47, "netkar": 35664.58}, "MART": {"ciro": 940460.0, "netkar": 196606.76}, "NİSAN": {"ciro": 790713.03, "netkar": 120027.15}, "MAYİS": {"ciro": 938511.28, "netkar": 129251.28}}, "TRABZON FORUM": {"OCAK": {"ciro": 1186586.4, "netkar": 95615.7}, "ŞUBAT": {"ciro": 921177.23, "netkar": -39727.62}, "MART": {"ciro": 1532360.0, "netkar": 199307.38}, "NİSAN": {"ciro": 1240022.73, "netkar": 127991.63}, "MAYİS": {"ciro": 2126114.78, "netkar": 448287.1}}, "Genel Toplam": {"OCAK": {"ciro": 19161781.56, "netkar": 1459213.09}, "ŞUBAT": {"ciro": 15947454.81, "netkar": -244341.25}, "MART": {"ciro": 28574665.0, "netkar": 5283417.08}, "NİSAN": {"ciro": 20517647.3, "netkar": 1922342.28}, "MAYİS": {"ciro": 27843106.08, "netkar": 4831326.36}}}};
+
+// Tarih
+var DAYS=['Pazar','Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'];
+var MONTHS=['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+var now=new Date();
+var dateStr=now.getDate()+' '+MONTHS[now.getMonth()]+' '+now.getFullYear();
+document.getElementById('sb-date').textContent=dateStr;
+document.getElementById('gun-adi').textContent=DAYS[now.getDay()];
+
+function fmt(n){return Math.round(n||0).toLocaleString('tr-TR');}
+
+// GÖREVLER
+var CATS=[
+  {key:'edirne',label:'Edirne AVM',icon:'🏪'},
+  {key:'historia',label:'Historia AVM',icon:'🏪'},
+  {key:'nebim',label:'Nebim & Teknik',icon:'⚙️'},
+  {key:'altyapi',label:'Altyapı',icon:'🔧'},
+  {key:'gorusme',label:'Görüşme & Karar',icon:'💬'},
+  {key:'diger',label:'Diğer',icon:'📌'},
+];
+var DEFAULT_G=[
+  {id:1,cat:'edirne',text:'Sigorta ara — tavan su aldı',done:false},
+  {id:2,cat:'edirne',text:'Klima arızası — tamirci çağır',done:false},
+  {id:3,cat:'edirne',text:'10 adet spot lamba temin et',done:false},
+  {id:4,cat:'edirne',text:'Tavan alçı boya ustası bul',done:false},
+  {id:5,cat:'historia',text:'Yazıcı temin et',done:false},
+  {id:6,cat:'historia',text:'Yeni dönem kira müzakeresi — Meral Soysal',done:false},
+  {id:7,cat:'nebim',text:'Avukat Gökhan — Aleyna arabuluculuk evrakları',done:false},
+  {id:8,cat:'nebim',text:'Marmara Forum stokları sıfırla',done:false},
+  {id:9,cat:'nebim',text:'Stok açma ve veri değiştirme öğren',done:false},
+  {id:10,cat:'nebim',text:'Günlük satışlar otomatik maile gitsin',done:false},
+  {id:11,cat:'nebim',text:'Depo raporuna firma cari adı eklet',done:false},
+  {id:12,cat:'nebim',text:'Funny Patik markadan çıkartılsın',done:false},
+  {id:13,cat:'nebim',text:'Mağazalara gitmeyen ürün kontrol et',done:false},
+  {id:14,cat:'nebim',text:'1. yaş günü %20 iskonto kampanyası kur',done:false},
+  {id:15,cat:'nebim',text:'Eksi stoklar süreci çözülecek',done:false},
+  {id:16,cat:'nebim',text:'Hediye değişim kartları — okutulsun mu toplu çıkış mı?',done:false},
+  {id:17,cat:'nebim',text:'Mağaza satış ekranında ürün fotoğrafı',done:false},
+  {id:18,cat:'altyapi',text:'Cepa için PC',done:false},
+  {id:19,cat:'altyapi',text:'Historia — kameralar için PC kasası',done:false},
+  {id:20,cat:'altyapi',text:'SMS yükleme',done:false},
+  {id:21,cat:'altyapi',text:'Transfer ve tahsisat',done:false},
+  {id:22,cat:'gorusme',text:'Şenay Işık — tek mağaza talebi değerlendir',done:false},
+  {id:23,cat:'gorusme',text:'Nat Geo lisans araştır',done:false},
+  {id:24,cat:'gorusme',text:'Sözleşmesi biten mağazaları gözden geçir',done:false},
+  {id:25,cat:'gorusme',text:'Adana temizlik fiyatı görüş',done:false},
+];
+
+function getG(){try{var s=sessionStorage.getItem('kk3');if(s)return JSON.parse(s);}catch(e){}sessionStorage.setItem('kk3',JSON.stringify(DEFAULT_G));return DEFAULT_G;}
+function saveG(g){sessionStorage.setItem('kk3',JSON.stringify(g));}
+
+function renderGorevler(){
+  var g=getG();
+  var acik=g.filter(function(x){return !x.done;}).length;
+  var el=document.getElementById('g-cnt');
+  if(el)el.textContent=acik;
+  var html='';
+  CATS.forEach(function(cat){
+    var items=g.filter(function(x){return x.cat===cat.key;});
+    if(!items.length)return;
+    var acikSay=items.filter(function(x){return !x.done;}).length;
+    var rows=items.map(function(item){
+      return '<div class="task">'
+        +'<input type="checkbox" class="chk"'+(item.done?' checked':'')
+        +' onchange="toggleG('+item.id+')">'
+        +'<div class="task-content"><div class="task-text'+(item.done?' done':'')+'">'+item.text+'</div></div>'
+        +'<button class="del-btn" onclick="delG('+item.id+')">×</button>'
+        +'</div>';
+    }).join('');
+    html+='<div class="acc open">'
+      +'<div class="acc-head" onclick="toggleAcc(this)">'
+      +'<div class="acc-title">'+cat.icon+' '+cat.label
+      +'<span class="acc-count'+(acikSay?' has':'')+'">'+acikSay+'</span></div>'
+      +'<span class="acc-arrow">▼</span></div>'
+      +'<div class="acc-body">'+rows
+      +'<div class="add-area">'
+      +'<input class="inp inp-lg" placeholder="Yeni görev ekle..." data-cat="'+cat.key+'" onkeydown="if(event.key==\'Enter\')addG(this.dataset.cat,this)">'
+      +'<button class="btn-add" onclick="addG(this.previousElementSibling.dataset.cat,this.previousElementSibling)">Ekle</button>'
+      +'</div></div></div>';
+  });
+  document.getElementById('acc-gorevler').innerHTML=html;
+}
+
+function toggleG(id){var g=getG();g=g.map(function(x){return x.id===id?Object.assign({},x,{done:!x.done}):x;});saveG(g);renderGorevler();}
+function delG(id){var g=getG().filter(function(x){return x.id!==id;});saveG(g);renderGorevler();}
+function addG(cat,inp){
+  var text=inp.value.trim();if(!text)return;
+  var g=getG();var maxId=g.reduce(function(m,x){return Math.max(m,x.id);},0);
+  g.push({id:maxId+1,cat:cat,text:text,done:false});
+  saveG(g);renderGorevler();
+}
+
+// PERFORMANS TABLOSU
+var perf=DATA.magazalar.sort(function(a,b){return b.netkar-a.netkar;});
+var perfHtml=perf.map(function(m){
+  var pos=m.netkar>=0;
+  return '<tr><td>'+m.magaza+'</td>'
+    +'<td>'+fmt(m.ciro)+' ₺</td>'
+    +'<td class="neutral">%'+m.brutpct+'</td>'
+    +'<td class="'+(pos?'pos':'neg')+'">'+fmt(m.netkar)+' ₺</td>'
+    +'<td class="neutral">'+fmt(m.basabas)+' ₺</td>'
+    +'</tr>';
+}).join('');
+document.getElementById('perf-tbody').innerHTML=perfHtml;
+
+// KİRA TABLOSU
+var kiraHtml=DATA.kira.sort(function(a,b){return b.kdvhariç-a.kdvhariç;}).map(function(k){
+  var uyari=k.magaza.includes('ERZURUM')?'<span class="tag tag-r">KRİTİK</span>':'';
+  var muz=k.magaza.includes('HİSTORİA')||k.magaza.includes('HISTORIA')?'<span class="tag tag-y">MÜZAKERE</span>':'';
+  return '<tr><td>'+uyari+muz+k.magaza+'</td>'
+    +'<td class="neutral" style="font-size:11px;text-align:left;">'+k.firma+'</td>'
+    +'<td>'+fmt(k.kdvhariç)+' ₺</td>'
+    +'<td class="neutral">'+fmt(Math.round(k.kdvhariç*1.2))+' ₺</td>'
+    +'</tr>';
+}).join('');
+document.getElementById('kira-tbody').innerHTML=kiraHtml;
+
+// PERSONEL
+var perHtml=DATA.personel.map(function(p){
+  return '<div class="per-card"><div class="per-name">'+p.ad+'</div><div class="per-mag">'+p.magaza+'</div></div>';
+}).join('');
+document.getElementById('per-grid').innerHTML=perHtml;
+
+// NAVİGASYON
+function show(id, el){
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.nav-item,.bb-item').forEach(function(n){n.classList.remove('active');});
+  document.getElementById('page-'+id).classList.add('active');
+  if(el)el.classList.add('active');
+}
+
+function toggleAcc(head){
+  var acc=head.closest('.acc');
+  acc.classList.toggle('open');
+}
+
+renderGorevler();
+</script>
+</body>
+</html>
