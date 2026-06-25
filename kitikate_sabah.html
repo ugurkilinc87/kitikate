@@ -205,11 +205,23 @@ tr:hover td{background:#FAFAF8;}
 <!-- MAIN -->
 <div class="main">
 
+<!-- HIZLI NOT -->
+<div id="quick-note-bar" style="background:var(--white);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;gap:8px;align-items:center;">
+  <div style="flex:1;position:relative;">
+    <input id="quick-inp" class="inp" style="width:100%;padding-right:80px;" placeholder="Hızlı not ekle... (örn: Edirne kliması tamir edildi, Historia yazıcı geldi)">
+    <div id="quick-loading" style="display:none;position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--muted);">⏳</div>
+  </div>
+  <button onclick="quickAdd()" class="btn-add" style="white-space:nowrap;">+ Ekle</button>
+</div>
+
 <!-- GÖREVLER -->
 <div id="page-gorevler" class="page active">
-  <div class="page-header">
-    <div class="page-title" id="gun-adi"></div>
-    <div class="page-sub">Bekleyen görevler</div>
+  <div class="page-header" style="display:flex;align-items:flex-start;justify-content:space-between;">
+    <div>
+      <div class="page-title" id="gun-adi"></div>
+      <div class="page-sub">Bekleyen görevler</div>
+    </div>
+    <button onclick="clearDone()" style="background:none;border:1px solid var(--border);color:var(--muted);border-radius:7px;padding:6px 12px;font-size:11px;cursor:pointer;margin-top:4px;font-family:inherit;">✓ Tamamlananları sil</button>
   </div>
   <div id="acc-gorevler"></div>
 </div>
@@ -366,6 +378,122 @@ function toggleCustom(){document.getElementById('cd').style.display=document.get
 function getG(){try{var s=sessionStorage.getItem('kk3');if(s)return JSON.parse(s);}catch(e){}return JSON.parse(JSON.stringify(DEFAULT_G));}
 function saveG(g){sessionStorage.setItem('kk3',JSON.stringify(g));}
 
+
+// HIZLI NOT — Claude API ile kategori tespiti
+var MAG_NAMES = ['MALL OF', 'TRABZON FORUM', 'İSTANBUL FORUM', 'MERSİN FORUM', 'OPTİMUM', 'FORUM KAYSERİ', 'HISTORY AVM', 'FORUM ÇAMLIK', 'ANTARES AVM', 'DİYARBAKIR', 'AYDIN FORUM', 'KORUPARK', 'MARMARA FORUM', 'BORNOVA', 'EDİRNE', 'BUYAKA', 'CEPA', '365 AVM', 'SYMBOL KOCAELİ', '41 BURDA AVM', 'ERZURUM FORUM', 'TEPE NATİLÜ-IUS', 'TUNA LİFE KAYSERİ', 'PALLADİUM AVM', 'ADANA'];
+
+var CAT_NAMES = {
+  'edirne': 'Edirne AVM',
+  'historia': 'Historia AVM', 
+  'adana': 'Adana AVM',
+  'marmara': 'Marmara Forum',
+  'nebim': 'Nebim & Teknik',
+  'altyapi': 'Altyapı',
+  'gorusme': 'Görüşme & Karar',
+  'diger': 'Diğer'
+};
+
+async function quickAdd(){
+  var inp = document.getElementById('quick-inp');
+  var text = inp.value.trim();
+  if(!text) return;
+  
+  var loading = document.getElementById('quick-loading');
+  loading.style.display = 'block';
+  inp.disabled = true;
+  
+  try {
+    var prompt = "Aşağıdaki notu doğru kategoriye yerleştir. " +
+      "Kategoriler: edirne (Edirne AVM ile ilgili), historia (Historia AVM), " +
+      "adana (Adana AVM), marmara (Marmara Forum), nebim (Nebim ERP teknik), " +
+      "altyapi (PC, SMS, altyapı), gorusme (görüşme karar müzakere), diger (diğer). " +
+      "Eğer not bir mağazanın notlar bölümüne gidecekse mağaza adını da belirt. " +
+      "Mağazalar: " + MAG_NAMES.join(', ') + ". " +
+      "Sadece JSON döndür: {cat: string, magaza: string|null, text: string} " +
+      "cat değeri kategori anahtarı, magaza mağaza adı veya null, text temizlenmiş not. " +
+      "Not: " + text;
+    
+    var resp = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 200,
+        messages: [{role: "user", content: prompt}]
+      })
+    });
+    
+    var data = await resp.json();
+    var raw = data.content[0].text.trim();
+    var clean = raw.replace(/```json|```/g, '').trim();
+    var result = JSON.parse(clean);
+    
+    var cat = result.cat || 'diger';
+    var noteText = result.text || text;
+    var magaza = result.magaza;
+    
+    // Eğer mağaza kartı notuna gidecekse
+    if(magaza) {
+      var magIdx = MAG_DATA.findIndex(function(m){ 
+        return m.magaza === magaza || magaza.includes(m.magaza) || m.magaza.includes(magaza);
+      });
+      if(magIdx >= 0) {
+        var notes = getMN(magIdx);
+        var ms = ['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'];
+        var d = new Date();
+        notes.unshift({t: noteText, d: d.getDate()+' '+ms[d.getMonth()]});
+        saveMN(magIdx, notes);
+        showToast('✓ ' + MAG_DATA[magIdx].magaza + ' notlarına eklendi');
+        inp.value = ''; inp.disabled = false; loading.style.display = 'none';
+        return;
+      }
+    }
+    
+    // Görev olarak ekle
+    var g = getG();
+    var maxId = g.reduce(function(m,x){return Math.max(m,x.id);}, 0);
+    g.push({id: maxId+1, cat: cat, text: noteText, done: false});
+    saveG(g);
+    renderGorevler();
+    showToast('✓ ' + CAT_NAMES[cat] + ' görevlerine eklendi');
+    inp.value = '';
+    
+  } catch(e) {
+    // API olmadan basit kural tabanlı
+    var t = text.toLowerCase();
+    var cat = 'diger';
+    if(t.includes('edirne')) cat = 'edirne';
+    else if(t.includes('historia')) cat = 'historia';
+    else if(t.includes('adana')) cat = 'adana';
+    else if(t.includes('marmara')) cat = 'marmara';
+    else if(t.includes('nebim')||t.includes('stok')||t.includes('kampanya')) cat = 'nebim';
+    else if(t.includes('pc')||t.includes('sms')||t.includes('altyap')) cat = 'altyapi';
+    else if(t.includes('görüş')||t.includes('müzakere')||t.includes('sözleşme')) cat = 'gorusme';
+    
+    var g = getG();
+    var maxId = g.reduce(function(m,x){return Math.max(m,x.id);}, 0);
+    g.push({id: maxId+1, cat: cat, text: text, done: false});
+    saveG(g); renderGorevler();
+    showToast('✓ ' + CAT_NAMES[cat] + ' görevlerine eklendi');
+    inp.value = '';
+  }
+  
+  inp.disabled = false;
+  loading.style.display = 'none';
+}
+
+function showToast(msg){
+  var t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;z-index:9999;animation:fadein .2s;';
+  document.body.appendChild(t);
+  setTimeout(function(){t.remove();}, 2500);
+}
+
+document.getElementById('quick-inp').addEventListener('keydown', function(e){
+  if(e.key === 'Enter') quickAdd();
+});
+
 function renderGorevler(){
   var g=getG();
   var acik=g.filter(function(x){return !x.done;}).length;
@@ -398,6 +526,10 @@ function renderGorevler(){
   document.getElementById('acc-gorevler').innerHTML=html;
 }
 function toggleG(id){var g=getG();g=g.map(function(x){return x.id===id?Object.assign({},x,{done:!x.done}):x;});saveG(g);renderGorevler();}
+function clearDone(){
+  var g=getG().filter(function(x){return !x.done;});
+  saveG(g);renderGorevler();
+}
 function delG(id){if(!confirm('Sil?'))return;saveG(getG().filter(function(x){return x.id!==id;}));renderGorevler();}
 function addG(cat,inp){
   var text=inp.value.trim();if(!text)return;
