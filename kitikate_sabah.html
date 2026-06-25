@@ -390,6 +390,7 @@ var CAT_NAMES = {
   'nebim': 'Nebim & Teknik',
   'altyapi': 'Altyapı',
   'gorusme': 'Görüşme & Karar',
+  'kisisel': 'Kişisel',
   'diger': 'Diğer'
 };
 
@@ -406,7 +407,7 @@ async function quickAdd(){
     var prompt = "Aşağıdaki notu doğru kategoriye yerleştir. " +
       "Kategoriler: edirne (Edirne AVM ile ilgili), historia (Historia AVM), " +
       "adana (Adana AVM), marmara (Marmara Forum), nebim (Nebim ERP teknik), " +
-      "altyapi (PC, SMS, altyapı), gorusme (görüşme karar müzakere), diger (diğer). " +
+      "altyapi (PC, SMS, altyapı), gorusme (görüşme karar müzakere), kisisel (kişisel işler, randevu, alışveriş, seyahat, bilet, hatırlatma - mağazayla ilgisi olmayan), diger (diğer). " +
       "Eğer not bir mağazanın notlar bölümüne gidecekse mağaza adını da belirt. " +
       "Mağazalar: " + MAG_NAMES.join(', ') + ". " +
       "Sadece JSON döndür: {cat: string, magaza: string|null, text: string} " +
@@ -469,6 +470,7 @@ async function quickAdd(){
     else if(t.includes('nebim')||t.includes('stok')||t.includes('kampanya')) cat = 'nebim';
     else if(t.includes('pc')||t.includes('sms')||t.includes('altyap')) cat = 'altyapi';
     else if(t.includes('görüş')||t.includes('müzakere')||t.includes('sözleşme')) cat = 'gorusme';
+    else if(t.includes('bilet')||t.includes('randevu')||t.includes('ara ')||t.includes('al ')||t.includes('git ')) cat = 'kisisel';
     
     var g = getG();
     var maxId = g.reduce(function(m,x){return Math.max(m,x.id);}, 0);
