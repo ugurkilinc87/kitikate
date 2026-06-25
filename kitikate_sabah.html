@@ -438,14 +438,21 @@ async function quickAdd(){
   inp.disabled = true;
   
   try {
-    var prompt = "Aşağıdaki notu doğru kategoriye yerleştir. " +
-      "Kategoriler: edirne (Edirne AVM ile ilgili), historia (Historia AVM), " +
-      "adana (Adana AVM), marmara (Marmara Forum), nebim (Nebim ERP teknik), " +
-      "altyapi (PC, SMS, altyapı), gorusme (görüşme karar müzakere), kisisel (kişisel işler, randevu, alışveriş, seyahat, bilet, hatırlatma - mağazayla ilgisi olmayan), diger (diğer). " +
-      "Eğer not bir mağazanın notlar bölümüne gidecekse mağaza adını da belirt. " +
-      "Mağazalar: " + MAG_NAMES.join(', ') + ". " +
-      "Sadece JSON döndür: {cat: string, magaza: string|null, text: string} " +
-      "cat değeri kategori anahtarı, magaza mağaza adı veya null, text temizlenmiş not. " +
+    var magList = MAG_DATA.map(function(m){return m.magaza;}).join(', ');
+    var prompt = "Kitikate mağaza zinciri operasyon asistanısın. Aşağıdaki notu analiz et ve JSON döndür.\n\n" +
+      "MAĞAZALAR (tam isimleri): " + magList + "\n\n" +
+      "KURALLAR:\n" +
+      "1. Eğer notta bir mağaza adı veya mağazaya ait bir ipucu varsa (kişi adı, şehir, kısaltma vs), magaza alanını o mağazanın TAM adıyla doldur.\n" +
+      "   Örnekler: 'bornova' -> BORNOVA, 'izmir bornova' -> BORNOVA, 'trabzon' -> TRABZON FORUM, 'historia' -> HISTORY AVM\n" +
+      "2. Mağazaya ait not ise cat='diger' ver (görev değil, mağaza notu olacak).\n" +
+      "3. Mağazayla ilgisi yoksa kategorilerden birini seç:\n" +
+      "   - nebim: Nebim ERP, stok, kampanya, sistem\n" +
+      "   - altyapi: PC, SMS, altyapı, teknik donanım\n" +
+      "   - gorusme: görüşme, müzakere, sözleşme, karar\n" +
+      "   - kisisel: kişisel iş, randevu, alışveriş, seyahat, bilet, hatırlatma\n" +
+      "   - diger: diğer\n\n" +
+      "JSON formatı: {cat: string, magaza: string|null, text: string}\n" +
+      "Sadece JSON döndür, başka hiçbir şey yazma.\n\n" +
       "Not: " + text;
     
     var resp = await fetch("https://api.anthropic.com/v1/messages", {
