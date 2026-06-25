@@ -194,8 +194,6 @@ tr:hover td{background:#FAFAF8;}
     <div class="nav-item active" onclick="show('gorevler',this)"><span class="nav-icon">✓</span>Görevler<span class="nav-count alert" id="g-cnt"></span></div>
     <div class="nav-item" onclick="show('uyarilar',this)"><span class="nav-icon">⚑</span>Uyarılar<span class="nav-count alert">5</span></div>
     <div class="nav-section">Veriler</div>
-    <div class="nav-item" onclick="show('performans',this)"><span class="nav-icon">↗</span>Performans</div>
-    <div class="nav-item" onclick="show('kiralar',this)"><span class="nav-icon">◻</span>Kira & Sözleşme</div>
     <div class="nav-item" onclick="show('kiralar',this)"><span class="nav-icon">🏪</span>Mağazalar<span class="nav-count alert" id="kira-acil-cnt"></span></div>
   </div>
   <div class="sb-alert">
@@ -268,29 +266,6 @@ tr:hover td{background:#FAFAF8;}
   </div>
 </div>
 
-<!-- PERFORMANS -->
-<div id="page-performans" class="page">
-  <div class="page-header">
-    <div class="page-title">Performans</div>
-    <div class="page-sub">Ocak–Mayıs 2026 kümülatif, KDV hariç</div>
-  </div>
-  <div class="acc open">
-    <div class="acc-head" onclick="toggleAcc(this)">
-      <div class="acc-title">📊 Mağaza Bazlı Kârlılık</div>
-      <span class="acc-arrow">▼</span>
-    </div>
-    <div class="acc-body">
-      <div class="tbl-wrap">
-        <table id="perf-table">
-          <thead><tr>
-            <th>Mağaza</th><th>Ciro</th><th>Brüt Kâr %</th><th>Net Kâr</th><th>Başabaş</th>
-          </tr></thead>
-          <tbody id="perf-tbody"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</div>
 
 <!-- MAĞAZALAR -->
 <div id="page-kiralar" class="page">
@@ -310,8 +285,8 @@ tr:hover td{background:#FAFAF8;}
 <div class="bottombar">
   <div class="bb-item active" onclick="show('gorevler',this)"><div class="bb-icon">✓</div><div class="bb-label">Görevler</div></div>
   <div class="bb-item" onclick="show('uyarilar',this)"><div class="bb-icon">⚑</div><div class="bb-label">Uyarılar</div></div>
-  <div class="bb-item" onclick="show('performans',this)"><div class="bb-icon">↗</div><div class="bb-label">Performans</div></div>
-  <div class="bb-item" onclick="show('kiralar',this)"><div class="bb-icon">◻</div><div class="bb-label">Kiralar</div></div>
+  
+  
   
 </div>
 
