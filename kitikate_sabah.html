@@ -453,7 +453,7 @@ function renderGorevler(){
       }).join('')
       +'<div class="add-area">'
       +'<input class="inp inp-lg" placeholder="Yeni görev..." data-cat="'+cat.key
-      +'" onkeydown="if(event.key=='Enter')addG(this.dataset.cat,this)">'
+      +'" onkeydown="if(event.key==\'Enter\')addG(this.dataset.cat,this)">'
       +'<button class="btn-add" onclick="addG(this.previousElementSibling.dataset.cat,this.previousElementSibling)">Ekle</button>'
       +'</div></div></div>';
   });
@@ -519,7 +519,7 @@ function renderMagazalar(){
           +'<div id="mn-'+idx+'"></div>'
           +'<div style="display:flex;gap:8px;padding:8px 16px 12px;">'
             +'<input class="inp inp-lg" placeholder="Not ekle..." data-idx="'+idx
-            +'" onkeydown="if(event.key=='Enter')addMN(this.dataset.idx,this)">'
+            +'" onkeydown="if(event.key==\'Enter\')addMN(this.dataset.idx,this)">'
             +'<button class="btn-add" style="font-size:11px;padding:6px 12px;" '
             +'onclick="addMN(this.previousElementSibling.dataset.idx,this.previousElementSibling)">Ekle</button>'
           +'</div>'
